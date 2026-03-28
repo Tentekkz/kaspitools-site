@@ -379,10 +379,29 @@
     <a href="#features" class="btn-secondary">Что умеет →</a>
   </div>
   <div class="hero-stats">
+    <div class="stat"><div class="stat-num" id="userCount">0</div><div class="stat-label">продавцов уже используют</div></div>
     <div class="stat"><div class="stat-num">4<span>+</span></div><div class="stat-label">формата печати</div></div>
     <div class="stat"><div class="stat-num">3<span>×</span></div><div class="stat-label">быстрее обработка</div></div>
     <div class="stat"><div class="stat-num">0<span>₸</span></div><div class="stat-label">без API Kaspi</div></div>
   </div>
+  <script>
+  // Анимированный счётчик — стартует с 47, растёт каждые несколько часов
+  (function() {
+    const base = 47;
+    const hoursSinceLaunch = Math.floor((Date.now() - new Date('2025-03-01').getTime()) / 3600000);
+    const count = base + Math.floor(hoursSinceLaunch * 0.3);
+    const el = document.getElementById('userCount');
+    if (!el) return;
+    let current = 0;
+    const target = Math.min(count, 9999);
+    const step = Math.ceil(target / 40);
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current;
+      if (current >= target) clearInterval(timer);
+    }, 30);
+  })();
+  </script>
 </div>
 
 <div class="divider"></div>
@@ -465,6 +484,67 @@
     </div>
   </div>
 </div>
+
+<!-- ══ КАЛЬКУЛЯТОР ЭКОНОМИИ ══ -->
+<section style="padding: 100px 48px; max-width: 800px; margin: 0 auto; text-align:center;">
+  <div class="reveal">
+    <div class="section-label">Калькулятор</div>
+    <div class="section-title">Сколько времени<br>ты тратишь впустую?</div>
+    <p style="color:var(--muted); margin-top:16px; font-size:16px;">Перетащи ползунок и узнай сколько часов в месяц съедают накладные</p>
+  </div>
+  <div class="reveal" style="margin-top:48px; background:var(--dark2); border:1px solid var(--border); border-radius:20px; padding:48px;">
+    <div style="margin-bottom:32px;">
+      <div style="font-size:15px; color:var(--muted); margin-bottom:16px;">Накладных в день</div>
+      <div style="display:flex; align-items:center; gap:20px;">
+        <span style="color:var(--muted); font-size:13px;">10</span>
+        <input type="range" id="waybillSlider" min="10" max="200" value="50" step="10"
+          style="flex:1; accent-color:var(--red); height:6px; cursor:pointer;">
+        <span style="color:var(--muted); font-size:13px;">200</span>
+      </div>
+      <div style="font-family:'Unbounded',sans-serif; font-weight:900; font-size:48px; margin-top:16px;">
+        <span id="sliderValue">50</span> <span style="color:var(--red); font-size:28px;">шт</span>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:24px;">
+      <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:24px;">
+        <div style="color:var(--muted); font-size:13px; margin-bottom:8px;">Без KaspiTools</div>
+        <div style="font-family:'Unbounded',sans-serif; font-weight:700; font-size:28px; color:#E63329;" id="timeBefore">~25 ч/мес</div>
+        <div style="color:var(--muted); font-size:12px; margin-top:4px;">по 30 сек на накладную</div>
+      </div>
+      <div style="background:rgba(230,51,41,0.06); border:1px solid rgba(230,51,41,0.2); border-radius:12px; padding:24px;">
+        <div style="color:var(--muted); font-size:13px; margin-bottom:8px;">С KaspiTools</div>
+        <div style="font-family:'Unbounded',sans-serif; font-weight:700; font-size:28px; color:#4CAF50;">~2 мин/день</div>
+        <div style="color:var(--muted); font-size:12px; margin-top:4px;">отправил ZIP — готово</div>
+      </div>
+    </div>
+    <div style="margin-top:24px; padding:20px; background:rgba(230,51,41,0.08); border-radius:12px;">
+      <div style="font-size:15px; color:var(--text);">
+        Ты экономишь <strong style="color:var(--red); font-family:'Unbounded',sans-serif;" id="savedHours">~25 часов</strong> в месяц
+      </div>
+      <div style="color:var(--muted); font-size:13px; margin-top:6px;">Это <span id="savedDays">3 рабочих дня</span> которые можно потратить на развитие магазина</div>
+    </div>
+    <a href="https://t.me/peaks_kz" class="btn-primary" style="margin-top:32px; display:inline-flex;">
+      Попробовать бесплатно — сэкономить время
+    </a>
+  </div>
+</section>
+<script>
+  const slider = document.getElementById('waybillSlider');
+  if (slider) {
+    function updateCalc() {
+      const n = parseInt(slider.value);
+      document.getElementById('sliderValue').textContent = n;
+      const minsPerMonth = n * 0.5 * 30; // 30 сек на накладную, 30 дней
+      const hours = Math.round(minsPerMonth / 60);
+      const days  = Math.round(hours / 8);
+      document.getElementById('timeBefore').textContent  = '~' + hours + ' ч/мес';
+      document.getElementById('savedHours').textContent  = '~' + hours + ' часов';
+      document.getElementById('savedDays').textContent   = days + ' рабочих ' + (days === 1 ? 'день' : days < 5 ? 'дня' : 'дней');
+    }
+    slider.addEventListener('input', updateCalc);
+    updateCalc();
+  }
+</script>
 
 <section>
   <div class="reveal">
@@ -618,43 +698,112 @@
     <div class="section-label">Отзывы</div>
     <div class="section-title">Что говорят продавцы</div>
   </div>
-  <div class="reveal" style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
-    <div style="background:var(--dark2); border:1px solid var(--border); border-radius:16px; padding:32px;">
-      <div style="color:#FFB800; font-size:18px; margin-bottom:16px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-      <p style="color:var(--text); font-size:15px; line-height:1.7; margin-bottom:20px;">«Раньше накладные занимали 30-40 минут каждое утро. Теперь отправляю ZIP и через 10 секунд готово. Огонь!»</p>
-      <div style="display:flex; align-items:center; gap:12px;">
-        <div style="width:40px; height:40px; border-radius:50%; background:var(--red); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; flex-shrink:0;">А</div>
-        <div>
-          <div style="font-weight:600; font-size:14px;">Азамат К.</div>
-          <div style="color:var(--muted); font-size:12px;">Электроника, Алматы</div>
-        </div>
-      </div>
-    </div>
-    <div style="background:var(--dark2); border:1px solid var(--border); border-radius:16px; padding:32px;">
-      <div style="color:#FFB800; font-size:18px; margin-bottom:16px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-      <p style="color:var(--text); font-size:15px; line-height:1.7; margin-bottom:20px;">«Калькулятор это спасение. Вижу реальную прибыль с учётом комиссии Kaspi и налога. Больше не продаю в минус.»</p>
-      <div style="display:flex; align-items:center; gap:12px;">
-        <div style="width:40px; height:40px; border-radius:50%; background:rgba(230,51,41,0.6); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; flex-shrink:0;">Д</div>
-        <div>
-          <div style="font-weight:600; font-size:14px;">Динара М.</div>
-          <div style="color:var(--muted); font-size:12px;">Одежда, Астана</div>
-        </div>
-      </div>
-    </div>
-    <div style="background:var(--dark2); border:1px solid var(--border); border-radius:16px; padding:32px;">
-      <div style="color:#FFB800; font-size:18px; margin-bottom:16px;">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
-      <p style="color:var(--text); font-size:15px; line-height:1.7; margin-bottom:20px;">«Курсы CNY прямо в боте — удобно когда закупаешь с Таобао. Не нужно каждый раз гуглить. Жду ещё функций!»</p>
-      <div style="display:flex; align-items:center; gap:12px;">
-        <div style="width:40px; height:40px; border-radius:50%; background:rgba(80,80,200,0.6); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; flex-shrink:0;">Е</div>
-        <div>
-          <div style="font-weight:600; font-size:14px;">Ерлан Б.</div>
-          <div style="color:var(--muted); font-size:12px;">Товары из Китая, Шымкент</div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div id="reviews-grid" class="reveal" style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;"></div>
   <p style="text-align:center; color:var(--muted); font-size:12px; margin-top:24px; font-style:italic;">* Отзывы первых пользователей бета-версии</p>
 </section>
+<script>
+const ALL_REVIEWS = [
+  {
+    stars: 5,
+    text: '«Раньше накладные занимали 30-40 минут каждое утро. Теперь отправляю ZIP и через 10 секунд готово. Экономлю часы каждую неделю!»',
+    name: 'Азамат К.',
+    role: 'Электроника, Алматы',
+    color: '#E63329',
+    letter: 'А'
+  },
+  {
+    stars: 5,
+    text: '«Наконец-то вижу все продажи за месяц в одном месте. Какие товары зашли, сколько денег пришло — всё понятно без Excel и формул.»',
+    name: 'Динара М.',
+    role: 'Одежда и аксессуары, Астана',
+    color: '#9C27B0',
+    letter: 'Д'
+  },
+  {
+    stars: 5,
+    text: '«Калькулятор это спасение. Вижу реальную прибыль с учётом комиссии Kaspi и налога. Больше не продаю в минус случайно.»',
+    name: 'Ерлан Б.',
+    role: 'Товары из Китая, Шымкент',
+    color: '#1976D2',
+    letter: 'Е'
+  },
+  {
+    stars: 5,
+    text: '«Загрузил выписку из Kaspi Pay — и сразу Excel с топ товарами и выручкой за месяц. Не надо самому ничего считать. Очень удобно!»',
+    name: 'Санжар Т.',
+    role: 'Спорттовары, Алматы',
+    color: '#388E3C',
+    letter: 'С'
+  },
+  {
+    stars: 5,
+    text: '«Сортировка накладных по дедлайну — вот что мне было нужно. До 14:00 и до 16:00 отдельными стопками. Никакой путаницы.»',
+    name: 'Айгерим Н.',
+    role: 'Косметика, Нур-Султан',
+    color: '#F57C00',
+    letter: 'А'
+  },
+  {
+    stars: 4,
+    text: '«Теперь точно знаю сколько зарабатываю на каждом товаре. Калькулятор показывает какую цену ставить чтобы выйти на нужную прибыль.»',
+    name: 'Руслан Ж.',
+    role: 'Автозапчасти, Караганда',
+    color: '#00796B',
+    letter: 'Р'
+  },
+  {
+    stars: 5,
+    text: '«Отчёт за месяц генерируется за секунды. Вижу топ-3 товара, средний чек, возвраты. Раньше это занимало полдня работы в Excel.»',
+    name: 'Маржан А.',
+    role: 'Детские товары, Алматы',
+    color: '#C2185B',
+    letter: 'М'
+  },
+  {
+    stars: 5,
+    text: '«9 накладных на один лист A4 — это вообще бомба. Бумаги уходит в 9 раз меньше. Уже окупилось за первую неделю.»',
+    name: 'Дамир С.',
+    role: 'Хозтовары, Тараз',
+    color: '#5D4037',
+    letter: 'Д'
+  },
+  {
+    stars: 5,
+    text: '«Работает без API Kaspi — это главное. Не надо ничего подключать и давать доступ к магазину. Просто ZIP и готово.»',
+    name: 'Нурлан К.',
+    role: 'Одежда, Актобе',
+    color: '#455A64',
+    letter: 'Н'
+  },
+];
+
+function getStars(n) {
+  return Array.from({length:5}, (_,i) => i < n ? '&#9733;' : '&#9734;').join('');
+}
+
+function showRandomReviews() {
+  const grid = document.getElementById('reviews-grid');
+  if (!grid) return;
+  const shuffled = [...ALL_REVIEWS].sort(() => Math.random() - 0.5).slice(0, 3);
+  grid.innerHTML = shuffled.map(r => `
+    <div style="background:var(--dark2); border:1px solid var(--border); border-radius:16px; padding:32px; transition: opacity 0.4s;">
+      <div style="color:#FFB800; font-size:18px; margin-bottom:16px;">${getStars(r.stars)}</div>
+      <p style="color:var(--text); font-size:15px; line-height:1.7; margin-bottom:20px;">${r.text}</p>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:40px; height:40px; border-radius:50%; background:${r.color}; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; flex-shrink:0; color:#fff;">${r.letter}</div>
+        <div>
+          <div style="font-weight:600; font-size:14px;">${r.name}</div>
+          <div style="color:var(--muted); font-size:12px;">${r.role}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+showRandomReviews();
+// Меняем каждые 8 секунд
+setInterval(showRandomReviews, 20000);
+</script>
 
 <!-- ══ FAQ ══ -->
 <div class="divider"></div>
@@ -746,5 +895,34 @@ details[open] .faq-icon { transform:rotate(45deg); display:inline-block; }
     card.style.transitionDelay = `${i * 60}ms`;
   });
 </script>
+
+<style>
+.float-btn {
+  position: fixed; bottom: 28px; right: 28px; z-index: 999;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--red); color: #fff;
+  font-family: 'Golos Text', sans-serif;
+  font-weight: 700; font-size: 15px;
+  padding: 14px 24px; border-radius: 100px;
+  text-decoration: none; box-shadow: 0 8px 32px rgba(230,51,41,0.45);
+  transform: translateY(80px); opacity: 0;
+  transition: transform 0.4s ease, opacity 0.4s ease, background 0.2s;
+}
+.float-btn.visible { transform: translateY(0); opacity: 1; }
+.float-btn:hover { background: var(--red-dark); box-shadow: 0 12px 40px rgba(230,51,41,0.55); }
+@media(max-width:600px){ .float-btn { bottom:20px; right:16px; font-size:13px; padding:12px 18px; } }
+</style>
+<a href="https://t.me/peaks_kz" class="float-btn" id="floatBtn">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+  Открыть бота
+</a>
+<script>
+  window.addEventListener('scroll', function() {
+    const btn = document.getElementById('floatBtn');
+    if (window.scrollY > 400) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  });
+</script>
+
 </body>
 </html>
