@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KaspiTools — Инструменты для Kaspi продавцов</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E63329;
+    --red-dark: #B5261F;
+    --dark: #0D0D0D;
+    --dark2: #141414;
+    --dark3: #1C1C1C;
+    --border: #2A2A2A;
+    --text: #F0F0F0;
+    --muted: #7A7A7A;
+    --accent: #FF6B35;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Golos Text', sans-serif;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px;
+    background: rgba(13,13,13,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900; font-size: 15px; letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .logo span { color: var(--red); }
+  .nav-btn {
+    background: var(--red);
+    color: #fff;
+    font-family: 'Golos Text', sans-serif;
+    font-weight: 600; font-size: 14px;
+    padding: 10px 24px; border: none; border-radius: 6px;
+    cursor: pointer; text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .nav-btn:hover { background: var(--red-dark); transform: translateY(-1px); }
+
+  .hero {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 120px 24px 80px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: 'K';
+    position: absolute;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900;
+    font-size: 60vw;
+    color: rgba(230,51,41,0.04);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(230,51,41,0.12);
+    border: 1px solid rgba(230,51,41,0.3);
+    border-radius: 100px;
+    padding: 6px 16px; margin-bottom: 32px;
+    font-size: 13px; font-weight: 500; color: #FF8A82;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--red);
+    animation: pulse 1.5s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.4); }
+  }
+
+  .hero h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900;
+    font-size: clamp(36px, 7vw, 88px);
+    line-height: 1.0;
+    letter-spacing: -2px;
+    max-width: 900px;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+  .hero h1 em { font-style: normal; color: var(--red); }
+
+  .hero-sub {
+    margin-top: 24px;
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.6;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex; gap: 14px; margin-top: 40px;
+    animation: fadeUp 0.7s 0.3s ease both;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .btn-primary {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--red); color: #fff;
+    font-family: 'Golos Text', sans-serif;
+    font-weight: 700; font-size: 16px;
+    padding: 16px 32px; border-radius: 8px;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--red-dark); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(230,51,41,0.35); }
+  .btn-secondary {
+    display: flex; align-items: center; gap: 10px;
+    background: transparent; color: var(--text);
+    font-family: 'Golos Text', sans-serif;
+    font-weight: 600; font-size: 16px;
+    padding: 16px 32px; border-radius: 8px;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: #555; background: var(--dark3); }
+
+  .hero-stats {
+    display: flex; gap: 48px; margin-top: 64px;
+    animation: fadeUp 0.7s 0.4s ease both;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900; font-size: 32px; color: var(--text);
+  }
+  .stat-num span { color: var(--red); }
+  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  section {
+    position: relative; z-index: 1;
+    padding: 100px 48px;
+    max-width: 1200px; margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--red); margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: clamp(28px, 4vw, 48px);
+    line-height: 1.1; letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+  .section-desc {
+    font-size: 17px; color: var(--muted);
+    max-width: 520px; line-height: 1.65;
+  }
+
+  .features-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-end; margin-bottom: 60px;
+    gap: 32px; flex-wrap: wrap;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .feature-card {
+    background: var(--dark2);
+    padding: 40px 36px;
+    border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+    transition: background 0.25s, border-color 0.25s;
+    cursor: default;
+  }
+  .feature-card:first-child { border-radius: 12px 0 0 0; }
+  .feature-card:nth-child(3) { border-radius: 0 12px 0 0; }
+  .feature-card:nth-child(4) { border-radius: 0 0 0 12px; }
+  .feature-card:last-child { border-radius: 0 0 12px 0; }
+  .feature-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 0% 0%, rgba(230,51,41,0.08) 0%, transparent 60%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .feature-card:hover { background: #181818; border-color: #333; }
+  .feature-card:hover::before { opacity: 1; }
+
+  .feature-icon {
+    width: 48px; height: 48px;
+    background: rgba(230,51,41,0.12);
+    border: 1px solid rgba(230,51,41,0.2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 20px;
+  }
+  .feature-title {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700; font-size: 16px;
+    margin-bottom: 10px; line-height: 1.3;
+  }
+  .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
+  .feature-tag {
+    display: inline-block; margin-top: 16px;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    color: var(--red);
+  }
+
+  .how-section {
+    background: var(--dark2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .how-section > div {
+    max-width: 1200px; margin: 0 auto;
+    padding: 100px 48px;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px; margin-top: 60px;
+  }
+  .step {
+    padding: 36px 28px;
+    background: var(--dark);
+    border: 1px solid var(--border);
+  }
+  .step:first-child { border-radius: 12px 0 0 12px; }
+  .step:last-child { border-radius: 0 12px 12px 0; }
+  .step-num {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900; font-size: 48px;
+    color: rgba(230,51,41,0.15);
+    line-height: 1; margin-bottom: 16px;
+  }
+  .step-title {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700; font-size: 15px;
+    margin-bottom: 10px;
+  }
+  .step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px; margin-top: 60px;
+  }
+  .tool-card {
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 40px;
+    position: relative; overflow: hidden;
+  }
+  .tool-card.featured {
+    background: linear-gradient(135deg, #1A0C0B 0%, #140808 100%);
+    border-color: rgba(230,51,41,0.3);
+    grid-row: span 2;
+  }
+  .tool-card.featured::after {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(230,51,41,0.2) 0%, transparent 70%);
+  }
+  .tool-emoji { font-size: 36px; margin-bottom: 20px; display: block; }
+  .tool-title {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700; font-size: 20px;
+    margin-bottom: 12px;
+  }
+  .tool-desc { font-size: 15px; color: var(--muted); line-height: 1.65; }
+  .tool-list {
+    list-style: none; margin-top: 20px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .tool-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 14px; color: #B0B0B0;
+  }
+  .tool-list li::before { content: '→'; color: var(--red); flex-shrink: 0; margin-top: 1px; }
+
+  .cta-section { text-align: center; padding: 120px 48px; }
+  .cta-inner { max-width: 680px; margin: 0 auto; }
+  .cta-section .section-title { font-size: clamp(32px, 5vw, 56px); }
+  .cta-section .hero-actions { justify-content: center; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 48px;
+    display: flex; justify-content: space-between; align-items: center;
+    position: relative; z-index: 1;
+    flex-wrap: wrap; gap: 16px;
+  }
+  footer .logo { font-size: 13px; }
+  footer p { font-size: 13px; color: var(--muted); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0; transform: translateY(32px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+  .divider { width: 100%; height: 1px; background: var(--border); position: relative; z-index: 1; }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    section { padding: 64px 24px; }
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .tools-grid { grid-template-columns: 1fr; }
+    .tool-card.featured { grid-row: auto; }
+    footer { padding: 24px; }
+    .how-section > div { padding: 64px 24px; }
+    .cta-section { padding: 80px 24px; }
+    .hero-stats { gap: 32px; }
+  }
+  @media (max-width: 580px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    .step:first-child { border-radius: 12px 12px 0 0; }
+    .step:last-child { border-radius: 0 0 12px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Kaspi<span>Tools</span></div>
+  <a href="https://t.me/peaks_kz" class="nav-btn">Открыть в Telegram →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">Telegram бот для Kaspi продавцов</div>
+  <h1>Накладные.<br>Аналитика.<br><em>Без лишнего.</em></h1>
+  <p class="hero-sub">Накладные, аналитика, калькулятор и курсы валют — всё в одном Telegram боте. Без API, без настройки.</p>
+  <div class="hero-actions">
+    <a href="https://t.me/peaks_kz" class="btn-primary">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+      Открыть бота
+    </a>
+    <a href="#features" class="btn-secondary">Что умеет →</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">4<span>+</span></div><div class="stat-label">формата печати</div></div>
+    <div class="stat"><div class="stat-num">3<span>×</span></div><div class="stat-label">быстрее обработка</div></div>
+    <div class="stat"><div class="stat-num">0<span>₸</span></div><div class="stat-label">без API Kaspi</div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<section id="features">
+  <div class="features-header reveal">
+    <div>
+      <div class="section-label">Возможности</div>
+      <div class="section-title">Три инструмента.<br>Один бот.</div>
+    </div>
+    <p class="section-desc">Никакой сложной настройки — просто отправь файл и получи результат.</p>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <div class="feature-icon">📦</div>
+      <div class="feature-title">Умные накладные</div>
+      <div class="feature-desc">Отправь ZIP — получи готовый PDF для печати. Термопринтер, A4, 4 или 9 на лист.</div>
+      <div class="feature-tag">ZIP → PDF за секунды</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔤</div>
+      <div class="feature-title">Сортировка</div>
+      <div class="feature-desc">По названию товара или по дедлайну сдачи. Нужные стопки — без путаницы при 100+ заказах.</div>
+      <div class="feature-tag">До 16:00 — отдельно</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Финансовая аналитика</div>
+      <div class="feature-desc">Отправь 2 PDF из Kaspi Pay — получи Excel с выручкой, расходами, маржой и топ товарами.</div>
+      <div class="feature-tag">Excel + сводка в чат</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧮</div>
+      <div class="feature-title">Калькулятор</div>
+      <div class="feature-desc">Юнит-экономика с учётом комиссии Kaspi, доставки и налога. Твои реальные цифры.</div>
+      <div class="feature-tag">Чистая прибыль и маржа</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔻</div>
+      <div class="feature-title">Мин. цена продажи</div>
+      <div class="feature-desc">Введи себестоимость и желаемую маржу — бот посчитает минимальную цену при которой не уйдёшь в минус.</div>
+      <div class="feature-tag">Обратный расчёт</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <div class="feature-title">Без API и данных</div>
+      <div class="feature-desc">Не нужно подключать магазин или давать доступ к аккаунту. Файлы обрабатываются в памяти и сразу удаляются.</div>
+      <div class="feature-tag">Полная приватность</div>
+    </div>
+  </div>
+</section>
+
+<div class="how-section">
+  <div>
+    <div class="reveal">
+      <div class="section-label">Как это работает</div>
+      <div class="section-title">Просто отправь файл</div>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Скачай ZIP</div>
+        <div class="step-desc">Kaspi Магазин → Заказы → Накладные → Скачать ZIP</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Отправь боту</div>
+        <div class="step-desc">Просто перешли файл в Telegram — никаких форм и регистраций</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Выбери формат</div>
+        <div class="step-desc">Термо / A4 / 4 на лист / 9 на лист. Потом выбери сортировку</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Печатай</div>
+        <div class="step-desc">Готовый PDF приходит в чат со статистикой по дедлайнам</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="reveal">
+    <div class="section-label">Подробнее</div>
+    <div class="section-title">Каждый инструмент<br>делает своё дело</div>
+  </div>
+  <div class="tools-grid reveal">
+    <div class="tool-card featured">
+      <span class="tool-emoji">📦</span>
+      <div class="tool-title">Накладные</div>
+      <div class="tool-desc">Главная боль Kaspi продавца — каждый день десятки или сотни накладных. Бот берёт твой ZIP и делает всё сам.</div>
+      <ul class="tool-list">
+        <li>Термопринтер 75×120 и 100×150 мм</li>
+        <li>A4 по одной, 4 на лист, 9 на лист</li>
+        <li>Сортировка по товару или дедлайну</li>
+        <li>Статистика: сколько до 14:00, до 16:00</li>
+        <li>Обрабатывает многостраничные накладные</li>
+      </ul>
+    </div>
+    <div class="tool-card">
+      <span class="tool-emoji">📊</span>
+      <div class="tool-title">Аналитика</div>
+      <div class="tool-desc">Реальная картина бизнеса по твоим данным из Kaspi Pay.</div>
+      <ul class="tool-list">
+        <li>Выручка, комиссия, реклама, налог</li>
+        <li>Топ товары по выручке</li>
+        <li>Сравнение с прошлым месяцем</li>
+      </ul>
+    </div>
+    <div class="tool-card">
+      <span class="tool-emoji">🧮</span>
+      <div class="tool-title">Калькулятор</div>
+      <div class="tool-desc">Считает юнит-экономику и минимальную цену продажи с учётом всех расходов.</div>
+      <ul class="tool-list">
+        <li>Твои % комиссии и налога сохраняются</li>
+        <li>Обратный расчёт: себестоимость → мин. цена</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<div class="divider"></div>
+
+<section style="text-align:center; padding: 100px 48px;">
+  <div class="reveal" style="max-width:600px; margin: 0 auto;">
+    <div class="section-label">Тарифы</div>
+    <div class="section-title">Один тариф.<br>Всё включено.</div>
+    <div style="margin-top: 48px; background: var(--dark2); border: 1px solid var(--border); border-radius: 20px; padding: 48px; position: relative; overflow: hidden;">
+      <div style="position:absolute; top:-40px; right:-40px; width:200px; height:200px; background: radial-gradient(circle, rgba(230,51,41,0.15) 0%, transparent 70%);"></div>
+      <div style="font-family:'Unbounded',sans-serif; font-weight:900; font-size:56px; color:var(--text);">1 990 <span style="color:var(--red);">₸</span></div>
+      <div style="color:var(--muted); margin-top:8px; font-size:16px;">в месяц · отмена в любой момент</div>
+      <div style="margin: 32px 0; display:flex; flex-direction:column; gap:12px; text-align:left;">
+        <div style="display:flex; align-items:center; gap:12px; font-size:15px;">
+          <span style="color:var(--red); font-size:18px;">✓</span> Накладные — без лимита
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; font-size:15px;">
+          <span style="color:var(--red); font-size:18px;">✓</span> Аналитика — без лимита
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; font-size:15px;">
+          <span style="color:var(--red); font-size:18px;">✓</span> Калькулятор — без лимита
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; font-size:15px;">
+          <span style="color:var(--red); font-size:18px;">✓</span> Курсы валют CNY/USD/EUR/RUB
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; font-size:15px;">
+          <span style="color:var(--red); font-size:18px;">✓</span> Уведомления об изменении курса
+        </div>
+      </div>
+      <div style="padding: 16px; background: rgba(230,51,41,0.08); border: 1px solid rgba(230,51,41,0.2); border-radius: 10px; font-size:14px; color:#FF8A82;">
+        🎁 Попробуй бесплатно — накладные 1 раз, аналитика 1 раз, калькулятор 5 раз
+      </div>
+    </div>
+    <a href="https://t.me/peaks_kz" class="btn-primary" style="margin-top:32px; display:inline-flex;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+      Попробовать бесплатно
+    </a>
+  </div>
+</section>
+
+<div class="cta-section">
+  <div class="cta-inner reveal">
+    <div class="section-label">Начать</div>
+    <div class="section-title">Готов попробовать?</div>
+    <p class="section-desc" style="margin: 16px auto 0; text-align:center;">Открой бота в Telegram и отправь первый ZIP прямо сейчас.</p>
+    <div class="hero-actions">
+      <a href="https://t.me/peaks_kz" class="btn-primary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+        Открыть бота
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="logo">Kaspi<span>Tools</span></div>
+  <p>Работает без API Kaspi · Файлы не сохраняются</p>
+  <p>© 2025 KaspiTools · Path of Peaks</p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  document.querySelectorAll('.feature-card').forEach((card, i) => {
+    card.style.transitionDelay = `${i * 60}ms`;
+  });
+</script>
+</body>
+</html>
