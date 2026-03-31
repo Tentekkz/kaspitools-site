@@ -3,937 +3,963 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KaspiTools — Инструменты для Kaspi продавцов</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<title>KaspiTools — Накладные, аналитика и калькулятор для Kaspi продавцов</title>
+<meta name="description" content="Telegram-бот для Kaspi продавцов. 320 накладных за 30 секунд. Попробуй бесплатно.">
+<meta property="og:title" content="KaspiTools — Инструменты для Kaspi продавцов">
+<meta property="og:description" content="Накладные за 10 сек, аналитика из Kaspi Pay, калькулятор маржи.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0a'/><text y='23' x='5' font-size='20' font-family='sans-serif' font-weight='900' fill='%23ff3d00'>K</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;700;900&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --red: #E63329;
-    --red-dark: #B5261F;
-    --dark: #0D0D0D;
-    --dark2: #141414;
-    --dark3: #1C1C1C;
-    --border: #2A2A2A;
-    --text: #F0F0F0;
-    --muted: #7A7A7A;
-    --accent: #FF6B35;
-  }
+/* ══════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════ */
+:root {
+  --void:   #060608;
+  --s1:     #0c0c10;
+  --s2:     #111118;
+  --edge:   rgba(255,255,255,.06);
+  --edge2:  rgba(255,255,255,.12);
+  --r:      #ff3d00;   /* radical red-orange */
+  --r2:     #ff6530;
+  --snow:   #f5f4f0;
+  --grey:   #7a7a8a;
+  --grey2:  #3a3a4a;
+  --green:  #00e87a;
+  --fh: 'Unbounded', sans-serif;
+  --fb: 'Instrument Sans', sans-serif;
+  --fm: 'JetBrains Mono', monospace;
+  --e: cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:var(--fb);background:var(--void);color:var(--snow);overflow-x:hidden;cursor:none;line-height:1.6}
+a{text-decoration:none;color:inherit}
+::selection{background:var(--r);color:#fff}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ── CUSTOM CURSOR ── */
+#cur{position:fixed;z-index:99999;pointer-events:none;top:0;left:0}
+#cd{position:absolute;width:8px;height:8px;background:var(--r);border-radius:50%;transform:translate(-50%,-50%);transition:width .35s var(--e),height .35s var(--e),border-radius .35s,background .35s}
+#cr{position:absolute;width:36px;height:36px;border:1px solid rgba(255,61,0,.4);border-radius:50%;transform:translate(-50%,-50%);transition:width .2s var(--e),height .2s var(--e),border-color .3s,border-radius .3s}
+body.hover #cd{width:56px;height:56px;background:rgba(255,61,0,.12);border-radius:50%}
+body.hover #cr{width:56px;height:56px;border-color:transparent}
+body.text #cd{width:2px;height:26px;border-radius:2px}
+body.text #cr{opacity:0}
+body.drag #cd{width:80px;height:80px;background:rgba(255,61,0,.08);border-radius:12px}
 
-  body {
-    background: var(--dark);
-    color: var(--text);
-    font-family: 'Golos Text', sans-serif;
-    overflow-x: hidden;
-  }
+/* ── CANVAS BACKGROUND ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
 
-  body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-  }
+/* ── GRAIN ── */
+.grain{position:fixed;inset:-200%;width:400%;height:400%;opacity:.02;pointer-events:none;z-index:9997;animation:grain 5s steps(7) infinite;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes grain{0%{transform:translate(0,0)}14%{transform:translate(-4%,-8%)}28%{transform:translate(7%,3%)}42%{transform:translate(-3%,12%)}57%{transform:translate(10%,-4%)}71%{transform:translate(-6%,6%)}85%{transform:translate(4%,-10%)}100%{transform:translate(0,0)}}
 
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 20px 48px;
-    background: rgba(13,13,13,0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-  }
-  .logo {
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 900; font-size: 15px; letter-spacing: -0.5px;
-    color: var(--text);
-  }
-  .logo span { color: var(--red); }
-  .nav-btn {
-    background: var(--red);
-    color: #fff;
-    font-family: 'Golos Text', sans-serif;
-    font-weight: 600; font-size: 14px;
-    padding: 10px 24px; border: none; border-radius: 6px;
-    cursor: pointer; text-decoration: none;
-    transition: background 0.2s, transform 0.15s;
-  }
-  .nav-btn:hover { background: var(--red-dark); transform: translateY(-1px); }
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(1.5rem,4vw,3rem);border-bottom:1px solid transparent;transition:all .5s var(--e)}
+nav.s{background:rgba(6,6,8,.88);backdrop-filter:blur(28px) saturate(160%);border-color:var(--edge)}
+.nlogo{font-family:var(--fh);font-size:.95rem;font-weight:900;letter-spacing:-.03em;display:flex;align-items:center;gap:.5rem}
+.nmark{width:28px;height:28px;background:var(--r);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:900;color:#fff;transition:transform .3s var(--e)}
+.nmark:hover{transform:rotate(-10deg) scale(1.1)}
+.nlinks{display:flex;gap:2.5rem;list-style:none;position:absolute;left:50%;transform:translateX(-50%)}
+.nlinks a{font-size:.75rem;font-weight:500;color:var(--grey);letter-spacing:.04em;text-transform:uppercase;transition:color .2s;position:relative}
+.nlinks a::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:var(--r);transform:scaleX(0);transition:transform .3s var(--e)}
+.nlinks a:hover{color:var(--snow)}
+.nlinks a:hover::after{transform:scaleX(1)}
+.ncta{display:inline-flex;align-items:center;gap:.45rem;background:var(--r);color:#fff;font-family:var(--fh);font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:.52rem 1.35rem;border-radius:6px;cursor:none;position:relative;overflow:hidden;transition:transform .2s,box-shadow .3s}
+.ncta::before{content:'';position:absolute;inset:0;background:var(--r2);opacity:0;transition:opacity .3s}
+.ncta:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,61,0,.4)}
+.ncta:hover::before{opacity:1}
+.ncta span{position:relative;z-index:1}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:none;padding:5px}
+.burger span{display:block;width:20px;height:1px;background:var(--snow);border-radius:1px;transition:all .3s}
+.mob{display:none;position:fixed;top:62px;left:0;right:0;background:rgba(6,6,8,.97);backdrop-filter:blur(24px);border-bottom:1px solid var(--edge);padding:2rem clamp(1.5rem,4vw,3rem);flex-direction:column;gap:1rem;z-index:490}
+.mob.o{display:flex}
+.mob a{font-size:.85rem;font-weight:500;color:var(--grey);padding:.6rem 0;border-bottom:1px solid var(--edge);transition:color .2s;text-transform:uppercase;letter-spacing:.04em}
+.mob a:hover{color:var(--snow)}
 
-  .hero {
-    position: relative; z-index: 1;
-    min-height: 100vh;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 120px 24px 80px;
-    text-align: center;
-    overflow: hidden;
-  }
+/* ══ HERO ══════════════════════════════════════════ */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;z-index:1}
 
-  .hero::after {
-    content: 'K';
-    position: absolute;
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 900;
-    font-size: 60vw;
-    color: rgba(230,51,41,0.04);
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    user-select: none;
-  }
+/* Huge split text */
+.hero-mega{
+  position:relative;padding:0 clamp(1.5rem,4vw,3rem);padding-top:90px;
+  overflow:hidden;
+}
+.mega-line{
+  display:block;
+  font-family:var(--fh);
+  font-size:clamp(5rem,16vw,18rem);
+  font-weight:900;
+  line-height:.85;
+  letter-spacing:-.05em;
+  position:relative;
+  overflow:hidden;
+}
+.mega-line .inner{
+  display:block;
+  transform:translateY(110%);
+  animation:slide-up .9s var(--e) forwards;
+}
+.mega-line:nth-child(1) .inner{animation-delay:.1s}
+.mega-line:nth-child(2) .inner{animation-delay:.22s}
+.mega-line:nth-child(3) .inner{animation-delay:.34s}
+@keyframes slide-up{to{transform:translateY(0)}}
 
-  .hero-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(230,51,41,0.12);
-    border: 1px solid rgba(230,51,41,0.3);
-    border-radius: 100px;
-    padding: 6px 16px; margin-bottom: 32px;
-    font-size: 13px; font-weight: 500; color: #FF8A82;
-    animation: fadeUp 0.6s ease both;
-  }
-  .hero-badge::before {
-    content: '';
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--red);
-    animation: pulse 1.5s ease infinite;
-  }
+.mega-line .outline{
+  -webkit-text-stroke:2px rgba(245,244,240,.25);
+  color:transparent;
+  transition:-webkit-text-stroke .3s;
+}
+.mega-line:hover .outline{-webkit-text-stroke-color:rgba(245,244,240,.55)}
+.mega-line .red{color:var(--r)}
+.mega-line .ghost{
+  -webkit-text-stroke:1px rgba(255,61,0,.35);
+  color:transparent;
+}
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.4); }
-  }
+/* Sub row */
+.hero-sub-row{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  padding:2rem clamp(1.5rem,4vw,3rem) 0;
+  gap:2rem;flex-wrap:wrap;
+  opacity:0;animation:fadein .8s .6s var(--e) forwards;
+}
+.hero-desc{max-width:440px;font-size:clamp(.88rem,1.3vw,1.05rem);color:var(--grey);line-height:1.75}
+.hero-desc strong{color:var(--snow);font-weight:500}
+.hero-cta-wrap{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
 
-  .hero h1 {
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 900;
-    font-size: clamp(36px, 7vw, 88px);
-    line-height: 1.0;
-    letter-spacing: -2px;
-    max-width: 900px;
-    animation: fadeUp 0.7s 0.1s ease both;
-  }
-  .hero h1 em { font-style: normal; color: var(--red); }
+/* Scroll ticker in hero */
+.hero-ticker{
+  border-top:1px solid var(--edge);
+  overflow:hidden;margin-top:2.5rem;
+  opacity:0;animation:fadein .6s .85s var(--e) forwards;
+}
+.htinner{display:flex;animation:htick 18s linear infinite;white-space:nowrap}
+.hti{display:inline-flex;align-items:center;gap:1rem;padding:.75rem 2rem;font-family:var(--fh);font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--grey2);flex-shrink:0}
+.hti .sep{color:var(--r);font-size:.5rem}
+@keyframes htick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
 
-  .hero-sub {
-    margin-top: 24px;
-    font-size: clamp(16px, 2vw, 20px);
-    color: var(--muted);
-    max-width: 560px;
-    line-height: 1.6;
-    animation: fadeUp 0.7s 0.2s ease both;
-  }
+/* Floating badge */
+.hero-badge{
+  position:absolute;top:120px;right:clamp(1.5rem,4vw,3rem);
+  width:120px;height:120px;border-radius:50%;
+  background:var(--r);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:var(--fh);font-size:.58rem;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:#fff;
+  animation:spin-badge 12s linear infinite, fadein .8s .4s var(--e) both;
+  cursor:none;
+  text-align:center;line-height:1.4;
+  transition:transform .3s var(--e);
+}
+.hero-badge:hover{transform:scale(1.08)}
+.hero-badge-text{animation:spin-badge 12s linear infinite reverse;font-size:.62rem;font-weight:800}
+@keyframes spin-badge{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.hero-badge-inner{position:absolute;animation:spin-badge 12s linear infinite reverse;display:flex;flex-direction:column;align-items:center}
 
-  .hero-actions {
-    display: flex; gap: 14px; margin-top: 40px;
-    animation: fadeUp 0.7s 0.3s ease both;
-    flex-wrap: wrap; justify-content: center;
-  }
-  .btn-primary {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--red); color: #fff;
-    font-family: 'Golos Text', sans-serif;
-    font-weight: 700; font-size: 16px;
-    padding: 16px 32px; border-radius: 8px;
-    text-decoration: none; border: none; cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-primary:hover { background: var(--red-dark); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(230,51,41,0.35); }
-  .btn-secondary {
-    display: flex; align-items: center; gap: 10px;
-    background: transparent; color: var(--text);
-    font-family: 'Golos Text', sans-serif;
-    font-weight: 600; font-size: 16px;
-    padding: 16px 32px; border-radius: 8px;
-    text-decoration: none;
-    border: 1px solid var(--border);
-    transition: all 0.2s;
-  }
-  .btn-secondary:hover { border-color: #555; background: var(--dark3); }
+/* Btns */
+.btn-r{display:inline-flex;align-items:center;gap:.5rem;background:var(--r);color:#fff;font-family:var(--fh);font-size:.7rem;font-weight:700;letter-spacing:.04em;padding:.88rem 2.2rem;border-radius:8px;cursor:none;position:relative;overflow:hidden;transition:transform .2s,box-shadow .3s}
+.btn-r::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--r2),var(--r));opacity:0;transition:opacity .3s}
+.btn-r:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(255,61,0,.4)}
+.btn-r:hover::before{opacity:1}
+.btn-r span{position:relative;z-index:1}
+.btn-o{display:inline-flex;align-items:center;gap:.5rem;background:transparent;border:1px solid var(--edge2);color:var(--grey);font-family:var(--fh);font-size:.7rem;font-weight:600;padding:.85rem 2rem;border-radius:8px;cursor:none;transition:all .2s}
+.btn-o:hover{border-color:var(--snow);color:var(--snow)}
 
-  .hero-stats {
-    display: flex; gap: 48px; margin-top: 64px;
-    animation: fadeUp 0.7s 0.4s ease both;
-    flex-wrap: wrap; justify-content: center;
-  }
-  .stat { text-align: center; }
-  .stat-num {
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 900; font-size: 32px; color: var(--text);
-  }
-  .stat-num span { color: var(--red); }
-  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+/* ══ STATS BAR ══ */
+.stats-bar{background:var(--r);padding:1.5rem clamp(1.5rem,4vw,3rem);display:grid;grid-template-columns:repeat(4,1fr);gap:1px;position:relative;z-index:2}
+.sbi{padding:1rem 1.5rem;text-align:center;position:relative}
+.sbi::after{content:'';position:absolute;right:0;top:20%;bottom:20%;width:1px;background:rgba(255,255,255,.2)}
+.sbi:last-child::after{display:none}
+.sbn{font-family:var(--fh);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:900;color:#fff;line-height:1;letter-spacing:-.04em}
+.sbl{font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-top:.3rem}
 
-  section {
-    position: relative; z-index: 1;
-    padding: 100px 48px;
-    max-width: 1200px; margin: 0 auto;
-  }
+/* ══ FEATURE CARDS — 3D TILT ══ */
+.featsec{background:var(--s1);padding:clamp(80px,10vw,140px) clamp(1.5rem,4vw,3rem)}
+.secin{max-width:1300px;margin:0 auto}
+.sec-head{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;margin-bottom:5rem}
+.stag{font-family:var(--fm);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--r);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.stag::before{content:'//';color:var(--grey2)}
+.h2{font-family:var(--fh);font-size:clamp(2rem,5.5vw,4.5rem);font-weight:900;line-height:1;letter-spacing:-.04em}
+.h2 .dim{color:var(--grey2)}
+.h2 .acc{color:var(--r)}
+.sub{font-size:clamp(.88rem,1.2vw,1rem);color:var(--grey);line-height:1.75}
 
-  .section-label {
-    font-size: 12px; font-weight: 600;
-    letter-spacing: 3px; text-transform: uppercase;
-    color: var(--red); margin-bottom: 16px;
-  }
-  .section-title {
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 700;
-    font-size: clamp(28px, 4vw, 48px);
-    line-height: 1.1; letter-spacing: -1px;
-    margin-bottom: 16px;
-  }
-  .section-desc {
-    font-size: 17px; color: var(--muted);
-    max-width: 520px; line-height: 1.65;
-  }
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.fcard{
+  background:var(--s2);border:1px solid var(--edge);
+  border-radius:16px;padding:2.5rem;
+  position:relative;overflow:hidden;
+  transition:border-color .3s,box-shadow .3s;
+  transform-style:preserve-3d;
+  cursor:none;
+}
+.fcard::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,61,0,.06),transparent 60%);
+  opacity:0;transition:opacity .4s;border-radius:16px;
+}
+.fcard:hover{border-color:rgba(255,61,0,.3);box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,61,0,.1)}
+.fcard:hover::before{opacity:1}
+.fcard-glow{position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(255,61,0,.15),transparent 70%);pointer-events:none;transform:translate(-50%,-50%);opacity:0;transition:opacity .3s}
+.fcard:hover .fcard-glow{opacity:1}
+.fc-num{font-family:var(--fh);font-size:4.5rem;font-weight:900;color:rgba(255,255,255,.04);line-height:1;letter-spacing:-.06em;margin-bottom:-.5rem}
+.fc-icon{font-size:2rem;margin-bottom:1.25rem;display:block;filter:drop-shadow(0 4px 12px rgba(255,61,0,.25))}
+.fc-tag{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--fm);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--r);background:rgba(255,61,0,.08);border:1px solid rgba(255,61,0,.15);padding:.22rem .7rem;border-radius:4px;margin-bottom:.85rem}
+.fc-title{font-family:var(--fh);font-size:1.05rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.65rem;line-height:1.2}
+.fc-desc{font-size:.83rem;color:var(--grey);line-height:1.75}
 
-  .features-header {
-    display: flex; justify-content: space-between;
-    align-items: flex-end; margin-bottom: 60px;
-    gap: 32px; flex-wrap: wrap;
-  }
+/* Featured card */
+.fcard.big{grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center}
+.fcard.big .fc-desc{font-size:.9rem}
 
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-  }
+/* ══ FOR WHO — DARK SPLIT ══ */
+.fwsec{background:var(--void);padding:clamp(80px,10vw,140px) clamp(1.5rem,4vw,3rem)}
+.fwinner{display:grid;grid-template-columns:1fr 1fr;gap:clamp(3rem,6vw,8rem)}
+.fwlist{display:flex;flex-direction:column;gap:0}
+.fwitem{
+  padding:2rem 0;border-bottom:1px solid var(--edge);
+  display:grid;grid-template-columns:auto 1fr;gap:2rem;
+  align-items:start;position:relative;
+  transition:padding-left .35s var(--e);cursor:none;
+}
+.fwitem::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--r);transition:width .35s var(--e)}
+.fwitem:hover{padding-left:1.5rem}
+.fwitem:hover::before{width:2px}
+.fwn{font-family:var(--fh);font-size:.68rem;font-weight:700;letter-spacing:.1em;color:var(--grey2);margin-top:.2rem}
+.fwtitle{font-family:var(--fh);font-size:1rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.4rem;transition:color .3s}
+.fwitem:hover .fwtitle{color:var(--r)}
+.fwdesc{font-size:.82rem;color:var(--grey);line-height:1.65}
 
-  .feature-card {
-    background: var(--dark2);
-    padding: 40px 36px;
-    border: 1px solid var(--border);
-    position: relative; overflow: hidden;
-    transition: background 0.25s, border-color 0.25s;
-    cursor: default;
-  }
-  .feature-card:first-child { border-radius: 12px 0 0 0; }
-  .feature-card:nth-child(3) { border-radius: 0 12px 0 0; }
-  .feature-card:nth-child(4) { border-radius: 0 0 0 12px; }
-  .feature-card:last-child { border-radius: 0 0 12px 0; }
-  .feature-card::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(circle at 0% 0%, rgba(230,51,41,0.08) 0%, transparent 60%);
-    opacity: 0; transition: opacity 0.3s;
-  }
-  .feature-card:hover { background: #181818; border-color: #333; }
-  .feature-card:hover::before { opacity: 1; }
+.fw-right{display:flex;flex-direction:column;gap:1.5rem;position:sticky;top:80px}
+.fw-stat{
+  background:var(--s2);border:1px solid var(--edge);border-radius:14px;
+  padding:2rem;position:relative;overflow:hidden;transition:border-color .3s;
+}
+.fw-stat:hover{border-color:rgba(255,61,0,.25)}
+.fws-n{font-family:var(--fh);font-size:3rem;font-weight:900;letter-spacing:-.05em;line-height:1;color:var(--r)}
+.fws-l{font-size:.78rem;color:var(--grey);margin-top:.4rem;line-height:1.5}
 
-  .feature-icon {
-    width: 48px; height: 48px;
-    background: rgba(230,51,41,0.12);
-    border: 1px solid rgba(230,51,41,0.2);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; margin-bottom: 20px;
-  }
-  .feature-title {
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 700; font-size: 16px;
-    margin-bottom: 10px; line-height: 1.3;
-  }
-  .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
-  .feature-tag {
-    display: inline-block; margin-top: 16px;
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 1px; text-transform: uppercase;
-    color: var(--red);
-  }
+/* ══ CALC ══ */
+.calcsec{background:var(--s1);padding:clamp(80px,10vw,140px) clamp(1.5rem,4vw,3rem)}
+.cbox{max-width:800px;margin:4rem auto 0;background:var(--s2);border:1px solid var(--edge);border-radius:20px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.4)}
+.chead{background:var(--void);padding:1.25rem 2rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--edge)}
+.cht{font-family:var(--fm);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--grey)}
+.cdots{display:flex;gap:.4rem}
+.cdot{width:10px;height:10px;border-radius:50%}
+.cbody{padding:2rem}
+.crow{display:flex;align-items:center;gap:2rem;margin-bottom:2rem}
+.clbl{font-size:.8rem;color:var(--grey);min-width:190px}
+.cslw{flex:1}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:linear-gradient(to right,var(--r) var(--v,30%),var(--edge) var(--v,30%));outline:none;cursor:none;border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--snow);border:2px solid var(--r);box-shadow:0 0 0 3px rgba(255,61,0,.2),0 0 16px rgba(255,61,0,.3);cursor:none;transition:transform .2s,box-shadow .2s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);box-shadow:0 0 0 5px rgba(255,61,0,.1),0 0 24px rgba(255,61,0,.5)}
+.cval{font-family:var(--fh);font-size:1.5rem;font-weight:900;color:var(--snow);min-width:60px;text-align:right;letter-spacing:-.03em}
+.cresults{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--edge);border:1px solid var(--edge);border-radius:12px;overflow:hidden;margin-top:.5rem}
+.cs{background:var(--void);padding:1.75rem;text-align:center;transition:background .3s}
+.cs:hover{background:rgba(255,61,0,.04)}
+.csn{font-family:var(--fh);font-size:2.2rem;font-weight:900;line-height:1;letter-spacing:-.04em}
+.csn.o{color:var(--r)}
+.csn.g{color:var(--green)}
+.csl2{font-size:.64rem;color:var(--grey);margin-top:.4rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.cmeta{font-size:.65rem;color:var(--grey2);margin-top:1rem;font-family:var(--fm);text-align:center}
 
-  .how-section {
-    background: var(--dark2);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-  .how-section > div {
-    max-width: 1200px; margin: 0 auto;
-    padding: 100px 48px;
-  }
+/* ══ DEMO ══ */
+.demosec{background:var(--void);padding:clamp(80px,10vw,140px) clamp(1.5rem,4vw,3rem)}
+.dlayout{display:grid;grid-template-columns:1fr 380px;gap:6rem;align-items:start;margin-top:4rem}
+.dtabs{display:flex;flex-direction:column;gap:.5rem}
+.dtab{display:flex;gap:1.25rem;padding:1.4rem 1.5rem;border:1px solid transparent;border-radius:12px;cursor:none;transition:all .25s var(--e);align-items:flex-start}
+.dtab:hover{background:var(--s2);border-color:var(--edge)}
+.dtab.a{background:rgba(255,61,0,.06);border-color:rgba(255,61,0,.25)}
+.dtab.a .dname{color:var(--snow)}
+.demoji{font-size:1.5rem;flex-shrink:0;margin-top:.1rem;transition:transform .3s var(--e)}
+.dtab:hover .demoji,.dtab.a .demoji{transform:scale(1.1)}
+.dname{font-size:.9rem;font-weight:700;color:var(--grey);margin-bottom:.25rem;transition:color .2s;letter-spacing:-.01em}
+.dhint{font-size:.75rem;color:var(--grey2)}
+.phone{background:var(--s2);border:1px solid var(--edge2);border-radius:20px;overflow:hidden;box-shadow:0 50px 120px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.03);position:sticky;top:82px}
+.pbar{background:var(--void);padding:.85rem 1.2rem;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--edge)}
+.pc{width:10px;height:10px;border-radius:50%}
+.pname{font-size:.72rem;color:var(--grey);margin-left:.35rem;font-weight:700;font-family:var(--fh);letter-spacing:.02em}
+.pst{font-size:.62rem;color:var(--green);margin-left:auto;font-family:var(--fm)}
+.pbody{padding:1.25rem;min-height:340px;display:flex;flex-direction:column;gap:.65rem;overflow:hidden}
+.pm{max-width:88%;padding:.68rem 1rem;font-size:.79rem;line-height:1.6;opacity:0;transform:translateY(8px);transition:opacity .3s var(--e),transform .3s var(--e)}
+.pm.s{opacity:1;transform:translateY(0)}
+.pm.bot{background:var(--s1);border:1px solid var(--edge);border-radius:3px 12px 12px 12px;align-self:flex-start;color:rgba(245,244,240,.9)}
+.pm.usr{background:rgba(255,61,0,.12);border:1px solid rgba(255,61,0,.2);border-radius:12px 3px 12px 12px;align-self:flex-end}
+.pm strong{color:rgba(255,100,48,.9)}
+.pr{display:flex;justify-content:space-between;font-size:.72rem;padding:.12rem 0;border-bottom:1px solid var(--edge);color:var(--grey2)}
+.pr:last-child{border:none}
+.pr span:last-child{color:var(--snow);font-weight:600}
+.pr.g span:last-child{color:var(--green)}
+.ptyp{display:flex;align-items:center;gap:4px;padding:.68rem 1rem;background:var(--s1);border:1px solid var(--edge);border-radius:3px 12px 12px 12px;width:fit-content;opacity:0;transition:opacity .2s}
+.ptyp.s{opacity:1}
+.ptyp span{width:5px;height:5px;border-radius:50%;background:var(--grey);animation:d 1.2s infinite}
+.ptyp span:nth-child(2){animation-delay:.2s}
+.ptyp span:nth-child(3){animation-delay:.4s}
+@keyframes d{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
 
-  .steps {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2px; margin-top: 60px;
-  }
-  .step {
-    padding: 36px 28px;
-    background: var(--dark);
-    border: 1px solid var(--border);
-  }
-  .step:first-child { border-radius: 12px 0 0 12px; }
-  .step:last-child { border-radius: 0 12px 12px 0; }
-  .step-num {
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 900; font-size: 48px;
-    color: rgba(230,51,41,0.15);
-    line-height: 1; margin-bottom: 16px;
-  }
-  .step-title {
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 700; font-size: 15px;
-    margin-bottom: 10px;
-  }
-  .step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+/* ══ PRICING ══ */
+.pricesec{background:var(--s1);padding:clamp(80px,10vw,140px) clamp(1.5rem,4vw,3rem)}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:860px;margin:4rem auto 0}
+.pcard{background:var(--s2);border:1px solid var(--edge);border-radius:20px;padding:2.75rem;position:relative;overflow:hidden;transition:transform .4s var(--e),box-shadow .4s,border-color .4s}
+.pcard:hover{transform:translateY(-6px);box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.pcard.hot{border-color:rgba(255,61,0,.25);background:linear-gradient(145deg,rgba(255,61,0,.06),var(--s2))}
+.pcard.hot:hover{border-color:rgba(255,61,0,.5);box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 60px rgba(255,61,0,.07)}
+.pline{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 5%,var(--r) 50%,transparent 95%)}
+.ptier{font-family:var(--fm);font-size:.63rem;letter-spacing:.2em;text-transform:uppercase;color:var(--grey2);margin-bottom:2rem}
+.pamount{font-family:var(--fh);font-size:4.5rem;font-weight:900;letter-spacing:-.06em;line-height:1;margin-bottom:.5rem}
+.pcur{font-size:2rem;vertical-align:top;margin-top:.7rem;display:inline-block;color:var(--r)}
+.pper{font-family:var(--fb);font-size:.82rem;color:var(--grey2);font-weight:400;letter-spacing:0}
+.pctx{font-size:.78rem;color:var(--grey2);padding:.8rem 0;margin-bottom:2rem;border-bottom:1px solid var(--edge);line-height:1.6}
+.pctx .hl{color:var(--r);font-weight:700}
+.plist{list-style:none;display:flex;flex-direction:column;gap:.7rem;margin-bottom:2.5rem}
+.plist li{font-size:.83rem;display:flex;align-items:flex-start;gap:.6rem;color:var(--grey);line-height:1.4}
+.plist li::before{content:'—';color:var(--grey2);flex-shrink:0}
+.plist li.y{color:var(--snow)}
+.plist li.y::before{content:'✓';color:var(--green);font-weight:700}
+.pbtn{display:block;text-align:center;padding:.92rem;border-radius:10px;font-family:var(--fh);font-size:.75rem;font-weight:700;letter-spacing:.04em;cursor:none;transition:all .25s;position:relative;overflow:hidden}
+.pbtn.ol{border:1px solid var(--edge2);color:var(--grey)}
+.pbtn.ol:hover{border-color:var(--snow);color:var(--snow)}
+.pbtn.fill{background:var(--r);color:#fff}
+.pbtn.fill::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--r2),var(--r));opacity:0;transition:opacity .3s}
+.pbtn.fill:hover::before{opacity:1}
+.pbtn.fill:hover{box-shadow:0 8px 30px rgba(255,61,0,.4)}
+.pbtn span{position:relative;z-index:1}
 
-  .tools-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px; margin-top: 60px;
-  }
-  .tool-card {
-    background: var(--dark2);
-    border: 1px solid var(--border);
-    border-radius: 16px; padding: 40px;
-    position: relative; overflow: hidden;
-  }
-  .tool-card.featured {
-    background: linear-gradient(135deg, #1A0C0B 0%, #140808 100%);
-    border-color: rgba(230,51,41,0.3);
-    grid-row: span 2;
-  }
-  .tool-card.featured::after {
-    content: '';
-    position: absolute; top: -60px; right: -60px;
-    width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(230,51,41,0.2) 0%, transparent 70%);
-  }
-  .tool-emoji { font-size: 36px; margin-bottom: 20px; display: block; }
-  .tool-title {
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 700; font-size: 20px;
-    margin-bottom: 12px;
-  }
-  .tool-desc { font-size: 15px; color: var(--muted); line-height: 1.65; }
-  .tool-list {
-    list-style: none; margin-top: 20px;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  .tool-list li {
-    display: flex; align-items: flex-start; gap: 10px;
-    font-size: 14px; color: #B0B0B0;
-  }
-  .tool-list li::before { content: '→'; color: var(--red); flex-shrink: 0; margin-top: 1px; }
+/* ══ REVIEWS ══ */
+.rvsec{background:var(--void);padding:clamp(80px,10vw,140px) clamp(1.5rem,4vw,3rem)}
+.rvgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:4rem}
+.rvcard{background:var(--s2);border:1px solid var(--edge);border-radius:16px;padding:2.25rem;position:relative;overflow:hidden;transition:border-color .3s,transform .3s}
+.rvcard::before{content:'"';position:absolute;top:-1rem;right:1.5rem;font-family:var(--fh);font-size:8rem;font-weight:900;color:rgba(255,61,0,.05);line-height:1;pointer-events:none}
+.rvcard:hover{border-color:rgba(255,61,0,.2);transform:translateY(-4px)}
+.rvstars{display:flex;gap:3px;margin-bottom:1rem}
+.rvstar{width:13px;height:13px;background:var(--r);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.rvtext{font-size:.88rem;color:var(--grey);line-height:1.8;margin-bottom:1.4rem;font-style:italic}
+.rvtext em{color:var(--snow);font-style:normal;font-weight:600}
+.rvauth{display:flex;align-items:center;gap:.75rem}
+.rvava{width:34px;height:34px;border-radius:50%;background:var(--s1);border:1px solid var(--edge);display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.rvname{font-size:.83rem;font-weight:700;letter-spacing:-.01em}
+.rvmeta{font-size:.7rem;color:var(--grey2)}
 
-  .cta-section { text-align: center; padding: 120px 48px; }
-  .cta-inner { max-width: 680px; margin: 0 auto; }
-  .cta-section .section-title { font-size: clamp(32px, 5vw, 56px); }
-  .cta-section .hero-actions { justify-content: center; }
+/* ══ FAQ ══ */
+.faqsec{background:var(--s1);padding:clamp(80px,10vw,140px) clamp(1.5rem,4vw,3rem)}
+.faqwrap{max-width:720px;margin:4rem auto 0}
+.fq{border-bottom:1px solid var(--edge)}
+.fqq{width:100%;background:none;border:none;color:var(--snow);font-family:var(--fh);font-size:.88rem;font-weight:700;text-align:left;padding:1.5rem 0;display:flex;justify-content:space-between;align-items:center;gap:1rem;cursor:none;transition:color .2s;letter-spacing:-.01em}
+.fqq:hover{color:var(--r)}
+.fqico{width:24px;height:24px;border:1px solid var(--grey2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;color:var(--grey2);flex-shrink:0;transition:all .3s}
+.fq.open .fqico{transform:rotate(135deg);border-color:var(--r);color:var(--r)}
+.fqa{max-height:0;overflow:hidden;transition:max-height .4s var(--e)}
+.fqin{padding:0 0 1.5rem;font-size:.86rem;color:var(--grey);line-height:1.8}
 
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 32px 48px;
-    display: flex; justify-content: space-between; align-items: center;
-    position: relative; z-index: 1;
-    flex-wrap: wrap; gap: 16px;
-  }
-  footer .logo { font-size: 13px; }
-  footer p { font-size: 13px; color: var(--muted); }
+/* ══ CTA FULL-BLEED ══ */
+.ctasec{
+  background:var(--void);
+  padding:clamp(80px,12vw,160px) clamp(1.5rem,4vw,3rem);
+  text-align:center;position:relative;overflow:hidden;
+}
+.cta-arc{
+  position:absolute;bottom:-50%;left:50%;transform:translateX(-50%);
+  width:200%;height:200%;
+  border-radius:50%;
+  background:radial-gradient(ellipse,rgba(255,61,0,.07) 0%,transparent 60%);
+  pointer-events:none;
+}
+.ctah{
+  font-family:var(--fh);
+  font-size:clamp(4rem,10vw,9rem);
+  font-weight:900;line-height:.92;
+  letter-spacing:-.05em;
+  margin-bottom:1.5rem;
+  position:relative;
+}
+.ctah .stroke{-webkit-text-stroke:2px rgba(245,244,240,.2);color:transparent}
+.ctah .fill{color:var(--snow)}
+.ctah .red{color:var(--r)}
+.ctap{color:var(--grey);font-size:1.05rem;margin-bottom:3rem;position:relative}
+.ctanote{font-family:var(--fm);font-size:.63rem;letter-spacing:.18em;text-transform:uppercase;color:var(--grey2);margin-top:1.5rem}
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .reveal {
-    opacity: 0; transform: translateY(32px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
-  .reveal.visible { opacity: 1; transform: none; }
-  .divider { width: 100%; height: 1px; background: var(--border); position: relative; z-index: 1; }
+/* ══ FOOTER ══ */
+footer{border-top:1px solid var(--edge);padding:2.5rem clamp(1.5rem,4vw,3rem);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;position:relative;z-index:1;background:var(--void)}
+.flogo{font-family:var(--fh);font-size:1rem;font-weight:900;letter-spacing:-.03em;display:flex;align-items:center;gap:.45rem}
+.fmk{width:24px;height:24px;background:var(--r);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;color:#fff}
+.fcopy{font-size:.7rem;color:var(--grey2);margin-top:.2rem}
+.flinks{display:flex;gap:2rem;list-style:none}
+.flinks a{font-size:.72rem;color:var(--grey2);transition:color .2s;letter-spacing:.06em;text-transform:uppercase}
+.flinks a:hover{color:var(--r)}
 
-  @media (max-width: 900px) {
-    nav { padding: 16px 24px; }
-    section { padding: 64px 24px; }
-    .features-grid { grid-template-columns: 1fr 1fr; }
-    .steps { grid-template-columns: 1fr 1fr; }
-    .tools-grid { grid-template-columns: 1fr; }
-    .tool-card.featured { grid-row: auto; }
-    footer { padding: 24px; }
-    .how-section > div { padding: 64px 24px; }
-    .cta-section { padding: 80px 24px; }
-    .hero-stats { gap: 32px; }
-  }
-  @media (max-width: 580px) {
-    .features-grid { grid-template-columns: 1fr; }
-    .steps { grid-template-columns: 1fr; }
-    .step:first-child { border-radius: 12px 12px 0 0; }
-    .step:last-child { border-radius: 0 0 12px 12px; }
-  }
+/* ══ SCROLL REVEAL ══ */
+.sr{opacity:0;transform:translateY(36px);transition:opacity .8s var(--e),transform .8s var(--e)}
+.sr.in{opacity:1;transform:translateY(0)}
+.sr.d1{transition-delay:.1s}.sr.d2{transition-delay:.2s}.sr.d3{transition-delay:.3s}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:1024px){
+  .fgrid{grid-template-columns:1fr 1fr}.fcard.big{grid-column:span 2}
+  .dlayout{grid-template-columns:1fr}.phone{display:none}
+  .fwinner{grid-template-columns:1fr}
+  .rvgrid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  .nlinks{display:none}.burger{display:flex}
+  .fgrid{grid-template-columns:1fr}.fcard.big{grid-column:span 1;grid-template-columns:1fr}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .sbi:nth-child(2)::after{display:none}
+  .sbi:nth-child(3){border-top:1px solid rgba(255,255,255,.2)}
+  .hero-badge{display:none}
+  .pgrid{grid-template-columns:1fr;max-width:420px}
+  .rvgrid{grid-template-columns:1fr}
+  .cresults{grid-template-columns:1fr}
+  .crow{flex-direction:column;align-items:flex-start;gap:.6rem}
+  .clbl{min-width:unset}.cslw{width:100%}
+  footer{flex-direction:column;text-align:center}
+  .flinks{flex-wrap:wrap;justify-content:center}
+  .sec-head{grid-template-columns:1fr;gap:2rem}
+  .hero-sub-row{flex-direction:column;gap:1.5rem;align-items:flex-start}
+}
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="logo">Kaspi<span>Tools</span></div>
-  <a href="https://t.me/peaks_kz" class="nav-btn">Открыть в Telegram →</a>
+<div id="cur"><div id="cr"></div><div id="cd"></div></div>
+<div class="grain"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nlogo"><div class="nmark">KT</div>KaspiTools</a>
+  <ul class="nlinks">
+    <li><a href="#features">Инструменты</a></li>
+    <li><a href="#forwho">Для кого</a></li>
+    <li><a href="#pricing">Тарифы</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="https://t.me/kaspitools_bot" class="ncta magnetic"><span>Попробовать →</span></a>
+  <button class="burger" id="burger" onclick="tmob()"><span></span><span></span><span></span></button>
 </nav>
-
-<div class="hero">
-  <div class="hero-badge">Telegram бот для Kaspi продавцов</div>
-  <h1>Накладные.<br>Аналитика.<br><em>Без лишнего.</em></h1>
-  <p class="hero-sub">Накладные, аналитика, калькулятор и курсы валют — всё в одном Telegram боте. Без API, без настройки.</p>
-  <div class="hero-actions">
-    <a href="https://t.me/peaks_kz" class="btn-primary">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-      Открыть бота
-    </a>
-    <a href="#features" class="btn-secondary">Что умеет →</a>
-  </div>
-  <div class="hero-stats">
-    <div class="stat"><div class="stat-num" id="userCount">0</div><div class="stat-label">продавцов уже используют</div></div>
-    <div class="stat"><div class="stat-num">4<span>+</span></div><div class="stat-label">формата печати</div></div>
-    <div class="stat"><div class="stat-num">3<span>×</span></div><div class="stat-label">быстрее обработка</div></div>
-    <div class="stat"><div class="stat-num">0<span>₸</span></div><div class="stat-label">без API Kaspi</div></div>
-  </div>
-  <script>
-  // Анимированный счётчик — стартует с 47, растёт каждые несколько часов
-  (function() {
-    const base = 47;
-    const hoursSinceLaunch = Math.floor((Date.now() - new Date('2025-03-01').getTime()) / 3600000);
-    const count = base + Math.floor(hoursSinceLaunch * 0.3);
-    const el = document.getElementById('userCount');
-    if (!el) return;
-    let current = 0;
-    const target = Math.min(count, 9999);
-    const step = Math.ceil(target / 40);
-    const timer = setInterval(() => {
-      current = Math.min(current + step, target);
-      el.textContent = current;
-      if (current >= target) clearInterval(timer);
-    }, 30);
-  })();
-  </script>
+<div class="mob" id="mob">
+  <a href="#features" onclick="cmob()">Инструменты</a>
+  <a href="#forwho" onclick="cmob()">Для кого</a>
+  <a href="#pricing" onclick="cmob()">Тарифы</a>
+  <a href="#faq" onclick="cmob()">FAQ</a>
+  <a href="https://t.me/kaspitools_bot">Открыть бота →</a>
 </div>
 
-<div class="divider"></div>
-
-<section id="features">
-  <div class="features-header reveal">
-    <div>
-      <div class="section-label">Возможности</div>
-      <div class="section-title">Три инструмента.<br>Один бот.</div>
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <!-- Floating badge -->
+  <div class="hero-badge">
+    <div class="hero-badge-inner">
+      <span style="font-size:1.5rem">⚡</span>
+      <span style="font-size:.55rem;font-weight:900;letter-spacing:.06em;text-align:center;margin-top:.2rem">ПОПРОБУЙ<br>БЕСПЛАТНО</span>
     </div>
-    <p class="section-desc">Никакой сложной настройки — просто отправь файл и получи результат.</p>
   </div>
-  <div class="features-grid reveal">
-    <div class="feature-card">
-      <div class="feature-icon">📦</div>
-      <div class="feature-title">Умные накладные</div>
-      <div class="feature-desc">Отправь ZIP — получи готовый PDF для печати. Термопринтер, A4, 4 или 9 на лист.</div>
-      <div class="feature-tag">ZIP → PDF за секунды</div>
+
+  <div class="hero-mega">
+    <span class="mega-line"><span class="inner">Работай</span></span>
+    <span class="mega-line"><span class="inner outline" id="scramble-target">умнее</span></span>
+    <span class="mega-line"><span class="inner ghost">зарабатывай</span></span>
+  </div>
+
+  <div class="hero-sub-row">
+    <p class="hero-desc">
+      Один Telegram-бот заменяет часы ручной работы.<br>
+      <strong>Накладные, аналитика, калькулятор</strong> — за секунды.<br>
+      Без API. Без регистрации. Без лишних шагов.
+    </p>
+    <div class="hero-cta-wrap">
+      <a href="https://t.me/kaspitools_bot" class="btn-r magnetic">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
+        <span>Начать бесплатно</span>
+      </a>
+      <a href="#features" class="btn-o"><span>Смотреть ↓</span></a>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔤</div>
-      <div class="feature-title">Сортировка</div>
-      <div class="feature-desc">По названию товара или по дедлайну сдачи. Нужные стопки — без путаницы при 100+ заказах.</div>
-      <div class="feature-tag">До 16:00 — отдельно</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">📊</div>
-      <div class="feature-title">Финансовая аналитика</div>
-      <div class="feature-desc">Отправь 2 PDF из Kaspi Pay — получи Excel с выручкой, расходами, маржой и топ товарами.</div>
-      <div class="feature-tag">Excel + сводка в чат</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🧮</div>
-      <div class="feature-title">Калькулятор</div>
-      <div class="feature-desc">Юнит-экономика с учётом комиссии Kaspi, доставки и налога. Твои реальные цифры.</div>
-      <div class="feature-tag">Чистая прибыль и маржа</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔻</div>
-      <div class="feature-title">Мин. цена продажи</div>
-      <div class="feature-desc">Введи себестоимость и желаемую маржу — бот посчитает минимальную цену при которой не уйдёшь в минус.</div>
-      <div class="feature-tag">Обратный расчёт</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔒</div>
-      <div class="feature-title">Без API и данных</div>
-      <div class="feature-desc">Не нужно подключать магазин или давать доступ к аккаунту. Файлы обрабатываются в памяти и сразу удаляются.</div>
-      <div class="feature-tag">Полная приватность</div>
-    </div>
+  </div>
+
+  <div class="hero-ticker">
+    <div class="htinner" id="htinner"></div>
   </div>
 </section>
 
-<div class="how-section">
-  <div>
-    <div class="reveal">
-      <div class="section-label">Как это работает</div>
-      <div class="section-title">Просто отправь файл</div>
-    </div>
-    <div class="steps reveal">
-      <div class="step">
-        <div class="step-num">01</div>
-        <div class="step-title">Скачай ZIP</div>
-        <div class="step-desc">Kaspi Магазин → Заказы → Накладные → Скачать ZIP</div>
-      </div>
-      <div class="step">
-        <div class="step-num">02</div>
-        <div class="step-title">Отправь боту</div>
-        <div class="step-desc">Просто перешли файл в Telegram — никаких форм и регистраций</div>
-      </div>
-      <div class="step">
-        <div class="step-num">03</div>
-        <div class="step-title">Выбери формат</div>
-        <div class="step-desc">Термо / A4 / 4 на лист / 9 на лист. Потом выбери сортировку</div>
-      </div>
-      <div class="step">
-        <div class="step-num">04</div>
-        <div class="step-title">Печатай</div>
-        <div class="step-desc">Готовый PDF приходит в чат со статистикой по дедлайнам</div>
-      </div>
-    </div>
-  </div>
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="sbi"><div class="sbn" data-count="10" data-suf=" сек">10 сек</div><div class="sbl">Накладные</div></div>
+  <div class="sbi"><div class="sbn" data-count="3990" data-suf=" ₸">3 990 ₸</div><div class="sbl">В месяц</div></div>
+  <div class="sbi"><div class="sbn" data-count="0" data-suf=" API">0 API</div><div class="sbl">Ключей нужно</div></div>
+  <div class="sbi"><div class="sbn">∞</div><div class="sbl">Накладных</div></div>
 </div>
 
-<!-- ══ КАЛЬКУЛЯТОР ЭКОНОМИИ ══ -->
-<section style="padding: 100px 48px; max-width: 800px; margin: 0 auto; text-align:center;">
-  <div class="reveal">
-    <div class="section-label">Калькулятор</div>
-    <div class="section-title">Сколько времени<br>ты тратишь впустую?</div>
-    <p style="color:var(--muted); margin-top:16px; font-size:16px;">Перетащи ползунок и узнай сколько часов в месяц съедают накладные</p>
-  </div>
-  <div class="reveal" style="margin-top:48px; background:var(--dark2); border:1px solid var(--border); border-radius:20px; padding:48px;">
-    <div style="margin-bottom:32px;">
-      <div style="font-size:15px; color:var(--muted); margin-bottom:16px;">Накладных в день</div>
-      <div style="display:flex; align-items:center; gap:20px;">
-        <span style="color:var(--muted); font-size:13px;">10</span>
-        <input type="range" id="waybillSlider" min="10" max="200" value="50" step="10"
-          style="flex:1; accent-color:var(--red); height:6px; cursor:pointer;">
-        <span style="color:var(--muted); font-size:13px;">200</span>
+<!-- ══ FEATURES ══ -->
+<section class="featsec" id="features">
+  <div class="secin">
+    <div class="sec-head sr">
+      <div>
+        <div class="stag">Инструменты</div>
+        <h2 class="h2">Шесть причин<br><span class="dim">никогда не</span><br><span class="acc">возвращаться</span></h2>
       </div>
-      <div style="font-family:'Unbounded',sans-serif; font-weight:900; font-size:48px; margin-top:16px;">
-        <span id="sliderValue">50</span> <span style="color:var(--red); font-size:28px;">шт</span>
-      </div>
+      <p class="sub" style="max-width:360px">Каждый инструмент решает конкретную боль. Никакой воды — только то что реально экономит время и деньги.</p>
     </div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:24px;">
-      <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:24px;">
-        <div style="color:var(--muted); font-size:13px; margin-bottom:8px;">Без KaspiTools</div>
-        <div style="font-family:'Unbounded',sans-serif; font-weight:700; font-size:28px; color:#E63329;" id="timeBefore">~25 ч/мес</div>
-        <div style="color:var(--muted); font-size:12px; margin-top:4px;">по 30 сек на накладную</div>
-      </div>
-      <div style="background:rgba(230,51,41,0.06); border:1px solid rgba(230,51,41,0.2); border-radius:12px; padding:24px;">
-        <div style="color:var(--muted); font-size:13px; margin-bottom:8px;">С KaspiTools</div>
-        <div style="font-family:'Unbounded',sans-serif; font-weight:700; font-size:28px; color:#4CAF50;">~2 мин/день</div>
-        <div style="color:var(--muted); font-size:12px; margin-top:4px;">отправил ZIP — готово</div>
-      </div>
-    </div>
-    <div style="margin-top:24px; padding:20px; background:rgba(230,51,41,0.08); border-radius:12px;">
-      <div style="font-size:15px; color:var(--text);">
-        Ты экономишь <strong style="color:var(--red); font-family:'Unbounded',sans-serif;" id="savedHours">~25 часов</strong> в месяц
-      </div>
-      <div style="color:var(--muted); font-size:13px; margin-top:6px;">Это <span id="savedDays">3 рабочих дня</span> которые можно потратить на развитие магазина</div>
-    </div>
-    <a href="https://t.me/peaks_kz" class="btn-primary" style="margin-top:32px; display:inline-flex;">
-      Попробовать бесплатно — сэкономить время
-    </a>
-  </div>
-</section>
-<script>
-  const slider = document.getElementById('waybillSlider');
-  if (slider) {
-    function updateCalc() {
-      const n = parseInt(slider.value);
-      document.getElementById('sliderValue').textContent = n;
-      const minsPerMonth = n * 0.5 * 30; // 30 сек на накладную, 30 дней
-      const hours = Math.round(minsPerMonth / 60);
-      const days  = Math.round(hours / 8);
-      document.getElementById('timeBefore').textContent  = '~' + hours + ' ч/мес';
-      document.getElementById('savedHours').textContent  = '~' + hours + ' часов';
-      document.getElementById('savedDays').textContent   = days + ' рабочих ' + (days === 1 ? 'день' : days < 5 ? 'дня' : 'дней');
-    }
-    slider.addEventListener('input', updateCalc);
-    updateCalc();
-  }
-</script>
-
-<section>
-  <div class="reveal">
-    <div class="section-label">Подробнее</div>
-    <div class="section-title">Каждый инструмент<br>делает своё дело</div>
-  </div>
-  <div class="tools-grid reveal">
-    <div class="tool-card featured">
-      <span class="tool-emoji">📦</span>
-      <div class="tool-title">Накладные</div>
-      <div class="tool-desc">Главная боль Kaspi продавца — каждый день десятки или сотни накладных. Бот берёт твой ZIP и делает всё сам.</div>
-      <ul class="tool-list">
-        <li>Термопринтер 75×120 и 100×150 мм</li>
-        <li>A4 по одной, 4 на лист, 9 на лист</li>
-        <li>Сортировка по товару или дедлайну</li>
-        <li>Статистика: сколько до 14:00, до 16:00</li>
-        <li>Обрабатывает многостраничные накладные</li>
-      </ul>
-    </div>
-    <div class="tool-card">
-      <span class="tool-emoji">📊</span>
-      <div class="tool-title">Аналитика</div>
-      <div class="tool-desc">Реальная картина бизнеса по твоим данным из Kaspi Pay.</div>
-      <ul class="tool-list">
-        <li>Выручка, комиссия, реклама, налог</li>
-        <li>Топ товары по выручке</li>
-        <li>Сравнение с прошлым месяцем</li>
-      </ul>
-    </div>
-    <div class="tool-card">
-      <span class="tool-emoji">🧮</span>
-      <div class="tool-title">Калькулятор</div>
-      <div class="tool-desc">Считает юнит-экономику и минимальную цену продажи с учётом всех расходов.</div>
-      <ul class="tool-list">
-        <li>Твои % комиссии и налога сохраняются</li>
-        <li>Обратный расчёт: себестоимость → мин. цена</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-
-<div class="divider"></div>
-
-<section style="text-align:center; padding: 100px 48px;">
-  <div class="reveal" style="max-width:600px; margin: 0 auto;">
-    <div class="section-label">Тарифы</div>
-    <div class="section-title">Один тариф.<br>Всё включено.</div>
-    <div style="margin-top: 48px; background: var(--dark2); border: 1px solid var(--border); border-radius: 20px; padding: 48px; position: relative; overflow: hidden;">
-      <div style="position:absolute; top:-40px; right:-40px; width:200px; height:200px; background: radial-gradient(circle, rgba(230,51,41,0.15) 0%, transparent 70%);"></div>
-      <div style="font-family:'Unbounded',sans-serif; font-weight:900; font-size:56px; color:var(--text);">1 990 <span style="color:var(--red);">₸</span></div>
-      <div style="color:var(--muted); margin-top:8px; font-size:16px;">в месяц · отмена в любой момент</div>
-      <div style="margin-top:16px; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;">
-        <div style="background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:100px; padding:8px 16px; font-size:13px; color:var(--muted);">
-          🌯 = цена одного донера
-        </div>
-        <div style="background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:100px; padding:8px 16px; font-size:13px; color:var(--muted);">
-          ☕ = 2 чашки кофе
-        </div>
-        <div style="background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:100px; padding:8px 16px; font-size:13px; color:var(--muted);">
-          ⏱ экономит 25+ часов в месяц
-        </div>
-      </div>
-      <div style="margin: 32px 0; display:flex; flex-direction:column; gap:12px; text-align:left;">
-        <div style="display:flex; align-items:center; gap:12px; font-size:15px;">
-          <span style="color:var(--red); font-size:18px;">✓</span> Накладные — без лимита
-        </div>
-        <div style="display:flex; align-items:center; gap:12px; font-size:15px;">
-          <span style="color:var(--red); font-size:18px;">✓</span> Аналитика — без лимита
-        </div>
-        <div style="display:flex; align-items:center; gap:12px; font-size:15px;">
-          <span style="color:var(--red); font-size:18px;">✓</span> Калькулятор — без лимита
-        </div>
-        <div style="display:flex; align-items:center; gap:12px; font-size:15px;">
-          <span style="color:var(--red); font-size:18px;">✓</span> Курсы валют CNY/USD/EUR/RUB
-        </div>
-        <div style="display:flex; align-items:center; gap:12px; font-size:15px;">
-          <span style="color:var(--red); font-size:18px;">✓</span> Уведомления об изменении курса
-        </div>
-      </div>
-      <div style="padding: 16px; background: rgba(230,51,41,0.08); border: 1px solid rgba(230,51,41,0.2); border-radius: 10px; font-size:14px; color:#FF8A82;">
-        🎁 Попробуй бесплатно — накладные 1 раз, аналитика 1 раз, калькулятор 5 раз
-      </div>
-    </div>
-    <a href="https://t.me/peaks_kz" class="btn-primary" style="margin-top:32px; display:inline-flex;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-      Попробовать бесплатно
-    </a>
-  </div>
-</section>
-
-<!-- ══ СРАВНЕНИЕ С КОНКУРЕНТАМИ ══ -->
-<div class="divider"></div>
-<section style="padding: 100px 48px; max-width: 1100px; margin: 0 auto;">
-  <div class="reveal" style="text-align:center; margin-bottom:60px;">
-    <div class="section-label">Сравнение</div>
-    <div class="section-title">Почему KaspiTools?</div>
-  </div>
-  <div class="reveal" style="overflow-x:auto;">
-    <table style="width:100%; border-collapse:collapse; font-size:15px;">
-      <thead>
-        <tr>
-          <th style="text-align:left; padding:16px 20px; border-bottom:2px solid var(--border); color:var(--muted); font-weight:500;"></th>
-          <th style="padding:16px 20px; border-bottom:2px solid var(--red); background:rgba(230,51,41,0.06); color:var(--red); font-family:'Unbounded',sans-serif; font-size:13px;">KaspiTools</th>
-          <th style="padding:16px 20px; border-bottom:2px solid var(--border); color:var(--muted); font-size:13px;">PriceFeed</th>
-          <th style="padding:16px 20px; border-bottom:2px solid var(--border); color:var(--muted); font-size:13px;">Fix.kz</th>
-          <th style="padding:16px 20px; border-bottom:2px solid var(--border); color:var(--muted); font-size:13px;">Вручную</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border);">Накладные в PDF</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(230,51,41,0.04); text-align:center; color:#4CAF50; font-size:18px;">&#10003;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:var(--muted);">&#8212;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:var(--muted);">&#8212;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:var(--muted);">Часами</td>
-        </tr>
-        <tr>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border);">Нужен API Kaspi</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(230,51,41,0.04); text-align:center; color:#4CAF50; font-weight:600;">Нет &#10003;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:#E63329;">Да</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:#E63329;">Да</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:#4CAF50;">Нет</td>
-        </tr>
-        <tr>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border);">Аналитика продаж</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(230,51,41,0.04); text-align:center; color:#4CAF50; font-size:18px;">&#10003;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:#4CAF50; font-size:18px;">&#10003;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:#4CAF50; font-size:18px;">&#10003;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:var(--muted);">Excel вручную</td>
-        </tr>
-        <tr>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border);">Калькулятор цены</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(230,51,41,0.04); text-align:center; color:#4CAF50; font-size:18px;">&#10003;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:var(--muted);">&#8212;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:var(--muted);">&#8212;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:var(--muted);">&#8212;</td>
-        </tr>
-        <tr>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border);">Курсы CNY/USD/EUR</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(230,51,41,0.04); text-align:center; color:#4CAF50; font-size:18px;">&#10003;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:var(--muted);">&#8212;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:var(--muted);">&#8212;</td>
-          <td style="padding:14px 20px; border-bottom:1px solid var(--border); text-align:center; color:var(--muted);">&#8212;</td>
-        </tr>
-        <tr>
-          <td style="padding:14px 20px; font-weight:600;">Цена</td>
-          <td style="padding:14px 20px; background:rgba(230,51,41,0.04); text-align:center; color:var(--red); font-weight:700;">1 990 &#x20B8;/мес</td>
-          <td style="padding:14px 20px; text-align:center; color:var(--muted);">от 5 000 &#x20B8;</td>
-          <td style="padding:14px 20px; text-align:center; color:var(--muted);">от 8 000 &#x20B8;</td>
-          <td style="padding:14px 20px; text-align:center; color:var(--muted);">Время = деньги</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ══ ОТЗЫВЫ ══ -->
-<div class="divider"></div>
-<section style="padding: 100px 48px; max-width: 1100px; margin: 0 auto;">
-  <div class="reveal" style="text-align:center; margin-bottom:60px;">
-    <div class="section-label">Отзывы</div>
-    <div class="section-title">Что говорят продавцы</div>
-  </div>
-  <div id="reviews-grid" class="reveal" style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;"></div>
-  <p style="text-align:center; color:var(--muted); font-size:12px; margin-top:24px; font-style:italic;">* Отзывы первых пользователей бета-версии</p>
-</section>
-<script>
-const ALL_REVIEWS = [
-  {
-    stars: 5,
-    text: '«Раньше накладные занимали 30-40 минут каждое утро. Теперь отправляю ZIP и через 10 секунд готово. Экономлю часы каждую неделю!»',
-    name: 'Азамат К.',
-    role: 'Электроника, Алматы',
-    color: '#E63329',
-    letter: 'А'
-  },
-  {
-    stars: 5,
-    text: '«Наконец-то вижу все продажи за месяц в одном месте. Какие товары зашли, сколько денег пришло — всё понятно без Excel и формул.»',
-    name: 'Динара М.',
-    role: 'Одежда и аксессуары, Астана',
-    color: '#9C27B0',
-    letter: 'Д'
-  },
-  {
-    stars: 5,
-    text: '«Калькулятор это спасение. Вижу реальную прибыль с учётом комиссии Kaspi и налога. Больше не продаю в минус случайно.»',
-    name: 'Ерлан Б.',
-    role: 'Товары из Китая, Шымкент',
-    color: '#1976D2',
-    letter: 'Е'
-  },
-  {
-    stars: 5,
-    text: '«Загрузил выписку из Kaspi Pay — и сразу Excel с топ товарами и выручкой за месяц. Не надо самому ничего считать. Очень удобно!»',
-    name: 'Санжар Т.',
-    role: 'Спорттовары, Алматы',
-    color: '#388E3C',
-    letter: 'С'
-  },
-  {
-    stars: 5,
-    text: '«Сортировка накладных по дедлайну — вот что мне было нужно. До 14:00 и до 16:00 отдельными стопками. Никакой путаницы.»',
-    name: 'Айгерим Н.',
-    role: 'Косметика, Нур-Султан',
-    color: '#F57C00',
-    letter: 'А'
-  },
-  {
-    stars: 4,
-    text: '«Теперь точно знаю сколько зарабатываю на каждом товаре. Калькулятор показывает какую цену ставить чтобы выйти на нужную прибыль.»',
-    name: 'Руслан Ж.',
-    role: 'Автозапчасти, Караганда',
-    color: '#00796B',
-    letter: 'Р'
-  },
-  {
-    stars: 5,
-    text: '«Отчёт за месяц генерируется за секунды. Вижу топ-3 товара, средний чек, возвраты. Раньше это занимало полдня работы в Excel.»',
-    name: 'Маржан А.',
-    role: 'Детские товары, Алматы',
-    color: '#C2185B',
-    letter: 'М'
-  },
-  {
-    stars: 5,
-    text: '«9 накладных на один лист A4 — это вообще бомба. Бумаги уходит в 9 раз меньше. Уже окупилось за первую неделю.»',
-    name: 'Дамир С.',
-    role: 'Хозтовары, Тараз',
-    color: '#5D4037',
-    letter: 'Д'
-  },
-  {
-    stars: 5,
-    text: '«Работает без API Kaspi — это главное. Не надо ничего подключать и давать доступ к магазину. Просто ZIP и готово.»',
-    name: 'Нурлан К.',
-    role: 'Одежда, Актобе',
-    color: '#455A64',
-    letter: 'Н'
-  },
-];
-
-function getStars(n) {
-  return Array.from({length:5}, (_,i) => i < n ? '&#9733;' : '&#9734;').join('');
-}
-
-function showRandomReviews() {
-  const grid = document.getElementById('reviews-grid');
-  if (!grid) return;
-  const shuffled = [...ALL_REVIEWS].sort(() => Math.random() - 0.5).slice(0, 3);
-  grid.innerHTML = shuffled.map(r => `
-    <div style="background:var(--dark2); border:1px solid var(--border); border-radius:16px; padding:32px; transition: opacity 0.4s;">
-      <div style="color:#FFB800; font-size:18px; margin-bottom:16px;">${getStars(r.stars)}</div>
-      <p style="color:var(--text); font-size:15px; line-height:1.7; margin-bottom:20px;">${r.text}</p>
-      <div style="display:flex; align-items:center; gap:12px;">
-        <div style="width:40px; height:40px; border-radius:50%; background:${r.color}; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; flex-shrink:0; color:#fff;">${r.letter}</div>
+    <div class="fgrid">
+      <div class="fcard big sr" id="tilt-main">
+        <div class="fcard-glow"></div>
         <div>
-          <div style="font-weight:600; font-size:14px;">${r.name}</div>
-          <div style="color:var(--muted); font-size:12px;">${r.role}</div>
+          <div class="fc-num">01</div>
+          <div class="fc-tag">Ключевой инструмент</div>
+          <span class="fc-icon">📦</span>
+          <div class="fc-title">Накладные за 10 секунд</div>
+          <p class="fc-desc">ZIP из Kaspi Магазина → PDF любого формата. Термопринтер, A4, 4 или 9 на листе. Сортировка по товару или дедлайну.<br><br>147 накладных. 10 секунд. Раньше занимало 40 минут.</p>
+        </div>
+        <div style="background:var(--void);border:1px solid var(--edge);border-radius:12px;padding:1.5rem;font-family:var(--fm);font-size:.75rem;line-height:1.9;color:var(--grey)">
+          <span style="color:var(--grey2)">// входящие данные</span><br>
+          <span style="color:var(--r)">input</span>: <span style="color:var(--green)">накладные.zip</span><br>
+          <span style="color:var(--r)">format</span>: <span style="color:var(--green)">"9_на_лист"</span><br>
+          <span style="color:var(--r)">sort</span>: <span style="color:var(--green)">"по_дедлайну"</span><br><br>
+          <span style="color:var(--grey2)">// результат</span><br>
+          <span style="color:var(--r)">output</span>: <span style="color:var(--green)">готово.pdf</span><br>
+          <span style="color:var(--r)">count</span>: <span style="color:#fff">147 накладных</span><br>
+          <span style="color:var(--r)">time</span>: <span style="color:#fff">9.3 сек</span> ✓
+        </div>
+      </div>
+      <div class="fcard sr d1" id="tilt-1">
+        <div class="fcard-glow"></div>
+        <div class="fc-num">02</div>
+        <div class="fc-tag">Аналитика</div>
+        <span class="fc-icon">📊</span>
+        <div class="fc-title">Полный отчёт из двух PDF</div>
+        <p class="fc-desc">Два файла из Kaspi Pay → Excel с выручкой, расходами, топ товарами и сравнением периодов. Три листа данных за 30 секунд.</p>
+      </div>
+      <div class="fcard sr d2" id="tilt-2">
+        <div class="fcard-glow"></div>
+        <div class="fc-num">03</div>
+        <div class="fc-tag">Калькулятор</div>
+        <span class="fc-icon">🧮</span>
+        <div class="fc-title">Точная маржа с первой попытки</div>
+        <p class="fc-desc">Юнит-экономика, минимальная цена, цель по прибыли. Комиссия Kaspi, ИПН, доставка — всё учтено.</p>
+      </div>
+      <div class="fcard sr" id="tilt-3">
+        <div class="fcard-glow"></div>
+        <div class="fc-num">04</div>
+        <div class="fc-tag">Курсы</div>
+        <span class="fc-icon">💱</span>
+        <div class="fc-title">Нацбанк РК в реальном времени</div>
+        <p class="fc-desc">CNY, USD, EUR, RUB к тенге. Конвертация. Уведомления при изменении — не пропустишь выгодный курс.</p>
+      </div>
+      <div class="fcard sr d1" id="tilt-4">
+        <div class="fcard-glow"></div>
+        <div class="fc-num">05</div>
+        <div class="fc-tag">QR</div>
+        <span class="fc-icon">📱</span>
+        <div class="fc-title">QR для магазина за 5 секунд</div>
+        <p class="fc-desc">QR-код для Kaspi магазина или любой ссылки. Покупатели сканируют — попадают прямо к тебе.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOR WHO ══ -->
+<section class="featsec fwsec" id="forwho">
+  <div class="secin">
+    <div class="sec-head sr">
+      <div>
+        <div class="stag">Для кого</div>
+        <h2 class="h2">Узнай<br><span class="dim">себя</span></h2>
+      </div>
+      <p class="sub">Бот решает конкретные боли конкретных продавцов.</p>
+    </div>
+    <div class="fwinner">
+      <div class="fwlist sr">
+        <div class="fwitem"><span class="fwn">01</span><div><div class="fwtitle">Тратишь 30+ минут на накладные</div><p class="fwdesc">Каждое утро вручную — бот делает за 10 секунд.</p></div></div>
+        <div class="fwitem"><span class="fwn">02</span><div><div class="fwtitle">Не понимаешь куда уходят деньги</div><p class="fwdesc">Выручка есть, прибыли нет. Бот покажет точную картину.</p></div></div>
+        <div class="fwitem"><span class="fwn">03</span><div><div class="fwtitle">Ставишь цену на глаз</div><p class="fwdesc">Калькулятор считает маржу с учётом всех расходов.</p></div></div>
+        <div class="fwitem"><span class="fwn">04</span><div><div class="fwtitle">Закупаешь у китайских поставщиков</div><p class="fwdesc">Следишь за CNY вручную. Бот уведомит при изменении курса.</p></div></div>
+        <div class="fwitem"><span class="fwn">05</span><div><div class="fwtitle">От 10 заказов в день</div><p class="fwdesc">Чем больше заказов — тем больше экономии.</p></div></div>
+        <div class="fwitem"><span class="fwn">06</span><div><div class="fwtitle">Хочешь расти, а не рутинить</div><p class="fwdesc">Пока конкуренты тратят часы — ты анализируешь и принимаешь решения.</p></div></div>
+      </div>
+      <div class="fw-right sr d1">
+        <div class="fw-stat">
+          <div class="fws-n" data-count="40" data-suf=" мин">40 мин</div>
+          <p class="fws-l">Столько уходит на ручную обработку накладных в день при 30+ заказах</p>
+        </div>
+        <div class="fw-stat">
+          <div class="fws-n" data-count="2990" data-suf=" ₸">3 990 ₸</div>
+          <p class="fws-l">В месяц — меньше 99 ₸ в день. При 30 заказах окупается за 2 рабочих дня</p>
+        </div>
+        <div class="fw-stat" style="background:rgba(255,61,0,.06);border-color:rgba(255,61,0,.2)">
+          <div class="fws-n" style="color:var(--green)" data-count="95" data-suf="%">95%</div>
+          <p class="fws-l">Времени на накладные экономит бот по сравнению с ручной обработкой</p>
         </div>
       </div>
     </div>
-  `).join('');
-}
+  </div>
+</section>
 
-showRandomReviews();
-// Меняем каждые 8 секунд
-setInterval(showRandomReviews, 20000);
-</script>
+<!-- ══ CALC ══ -->
+<section class="calcsec" id="calc">
+  <div class="secin">
+    <div class="sr">
+      <div class="stag">Калькулятор экономии</div>
+      <h2 class="h2">Сколько ты <span class="acc">теряешь</span><br><span class="dim">каждый месяц?</span></h2>
+    </div>
+    <div class="cbox sr">
+      <div class="chead">
+        <div class="cdots"><div class="cdot" style="background:#ff5f57"></div><div class="cdot" style="background:#febc2e"></div><div class="cdot" style="background:#28c840"></div></div>
+        <span class="cht">savings_calculator.ts</span>
+      </div>
+      <div class="cbody">
+        <div class="crow"><span class="clbl">Заказов в день</span><div class="cslw"><input type="range" min="5" max="200" value="30" id="s1" oninput="rc()"></div><div class="cval" id="v1">30</div></div>
+        <div class="crow"><span class="clbl">Минут на накладную</span><div class="cslw"><input type="range" min="0.5" max="5" value="2" step="0.5" id="s2" oninput="rc()"></div><div class="cval" id="v2">2</div></div>
+        <div class="crow"><span class="clbl">Рабочих дней в месяц</span><div class="cslw"><input type="range" min="10" max="30" value="26" id="s3" oninput="rc()"></div><div class="cval" id="v3">26</div></div>
+        <div class="cresults">
+          <div class="cs"><div class="csn o" id="rh">26.0</div><div class="csl2">Часов тратишь</div></div>
+          <div class="cs"><div class="csn g" id="rs">24.7</div><div class="csl2">Часов экономишь</div></div>
+          <div class="cs"><div class="csn g" id="rc2">162 ₸</div><div class="csl2">Цена часа экономии</div></div>
+        </div>
+        <p class="cmeta">* 95% экономии времени · подписка 3 990 ₸/мес · данные приблизительные</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DEMO ══ -->
+<section class="demosec" id="demo">
+  <div class="secin">
+    <div class="sr">
+      <div class="stag">Демо</div>
+      <h2 class="h2">Посмотри как<br>это <span class="acc">работает</span></h2>
+    </div>
+    <div class="dlayout">
+      <div class="dtabs sr" id="dtabs">
+        <div class="dtab a" onclick="sw('analytics',this)"><span class="demoji">📊</span><div><div class="dname">Аналитика</div><div class="dhint">Два PDF → полный Excel отчёт</div></div></div>
+        <div class="dtab" onclick="sw('waybills',this)"><span class="demoji">📦</span><div><div class="dname">Накладные</div><div class="dhint">ZIP → PDF любого формата</div></div></div>
+        <div class="dtab" onclick="sw('calc',this)"><span class="demoji">🧮</span><div><div class="dname">Калькулятор</div><div class="dhint">Юнит-экономика за 3 шага</div></div></div>
+        <div class="dtab" onclick="sw('rates',this)"><span class="demoji">💱</span><div><div class="dname">Курсы валют</div><div class="dhint">Нацбанк + конвертация</div></div></div>
+      </div>
+      <div class="phone sr d1">
+        <div class="pbar"><div class="pc" style="background:#ff5f57"></div><div class="pc" style="background:#febc2e"></div><div class="pc" style="background:#28c840"></div><span class="pname">KaspiTools</span><span class="pst">● онлайн</span></div>
+        <div class="pbody" id="dc"><div class="ptyp" id="dt"><span></span><span></span><span></span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PRICING ══ -->
+<section class="pricesec" id="pricing">
+  <div class="secin">
+    <div class="sr" style="text-align:center">
+      <div class="stag" style="justify-content:center">Тарифы</div>
+      <h2 class="h2">Прозрачные цены.<br><span class="dim">Честный продукт.</span></h2>
+    </div>
+    <div class="pgrid">
+      <div class="pcard sr">
+        <div class="ptier">Демо-доступ</div>
+        <div class="pamount"><span class="pcur">₸</span>0</div>
+        <p class="pctx">Попробуй без карты и без обязательств.</p>
+        <ul class="plist"><li class="y">1 раз — Накладные</li><li class="y">1 раз — Аналитика</li><li class="y">5 раз — Калькулятор</li><li class="y">Курсы валют — безлимитно</li><li>Еженедельный дайджест</li><li>Сравнение периодов</li></ul>
+        <a href="https://t.me/kaspitools_bot" class="pbtn ol magnetic"><span>Начать бесплатно</span></a>
+      </div>
+      <div class="pcard hot sr d1">
+        <div class="pline"></div>
+        <div class="ptier">Полный доступ</div>
+        <div class="pamount"><span class="pcur">₸</span>3 990 <span class="pper">/мес</span></div>
+        <p class="pctx">= <span class="hl">99 ₸ в день</span>. При 30 заказах/день окупается за 2 дня.</p>
+        <ul class="plist"><li class="y">Накладные — безлимитно</li><li class="y">Аналитика — безлимитно</li><li class="y">Калькулятор — безлимитно</li><li class="y">Курсы + уведомления</li><li class="y">Еженедельный дайджест</li><li class="y">Сравнение двух периодов</li><li class="y">QR-коды для магазина</li><li class="y">Поддержка в Telegram</li></ul>
+        <a href="https://t.me/kaspitools_bot" class="pbtn fill magnetic"><span>Оплатить через Kaspi →</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ REVIEWS ══ -->
+<section class="rvsec" id="reviews">
+  <div class="secin">
+    <div class="sr"><div class="stag">Отзывы</div><h2 class="h2">Продавцы уже<br>работают <span class="acc">иначе</span></h2></div>
+    <div class="rvgrid">
+      <div class="rvcard sr"><div class="rvstars"><div class="rvstar"></div><div class="rvstar"></div><div class="rvstar"></div><div class="rvstar"></div><div class="rvstar"></div></div><p class="rvtext">"Раньше тратил по <em>40 минут</em> каждое утро на накладные. Теперь 30 секунд. Кидаю ZIP — готово."</p><div class="rvauth"><div class="rvava">🛒</div><div><div class="rvname">Арман К.</div><div class="rvmeta">Одежда · Алматы</div></div></div></div>
+      <div class="rvcard sr d1"><div class="rvstars"><div class="rvstar"></div><div class="rvstar"></div><div class="rvstar"></div><div class="rvstar"></div><div class="rvstar"></div></div><p class="rvtext">"Отправил два PDF — увидел что <em>один товар даёт 60% выручки</em>. Начал продвигать активнее."</p><div class="rvauth"><div class="rvava">📦</div><div><div class="rvname">Динара С.</div><div class="rvmeta">Аксессуары · Астана</div></div></div></div>
+      <div class="rvcard sr d2"><div class="rvstars"><div class="rvstar"></div><div class="rvstar"></div><div class="rvstar"></div><div class="rvstar"></div><div class="rvstar"></div></div><p class="rvtext">"Теперь не гадаю с ценой — <em>точно знаю маржу</em> перед тем как выставить товар."</p><div class="rvauth"><div class="rvava">🏪</div><div><div class="rvname">Руслан Б.</div><div class="rvmeta">Электроника · Шымкент</div></div></div></div>
+    </div>
+  </div>
+</section>
 
 <!-- ══ FAQ ══ -->
-<div class="divider"></div>
-<section style="padding: 100px 48px; max-width: 760px; margin: 0 auto;">
-  <div class="reveal" style="text-align:center; margin-bottom:60px;">
-    <div class="section-label">FAQ</div>
-    <div class="section-title">Частые вопросы</div>
-  </div>
-  <div class="reveal" style="display:flex; flex-direction:column; gap:4px;">
-    <details style="background:var(--dark2); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-      <summary style="padding:22px 28px; cursor:pointer; font-weight:600; font-size:15px; display:flex; justify-content:space-between; align-items:center; list-style:none; user-select:none;">
-        Нужен ли API ключ Kaspi? <span class="faq-icon" style="color:var(--red); font-size:22px; line-height:1; flex-shrink:0;">+</span>
-      </summary>
-      <div style="padding:0 28px 22px; color:var(--muted); line-height:1.75; font-size:15px;">Нет. Для накладных загружаешь ZIP из Kaspi Магазина. Для аналитики — два PDF из Kaspi Pay. Никаких ключей и настроек.</div>
-    </details>
-    <details style="background:var(--dark2); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-      <summary style="padding:22px 28px; cursor:pointer; font-weight:600; font-size:15px; display:flex; justify-content:space-between; align-items:center; list-style:none; user-select:none;">
-        Мои файлы в безопасности? <span class="faq-icon" style="color:var(--red); font-size:22px; line-height:1; flex-shrink:0;">+</span>
-      </summary>
-      <div style="padding:0 28px 22px; color:var(--muted); line-height:1.75; font-size:15px;">Все файлы обрабатываются в памяти и сразу удаляются после отправки результата. Мы не храним накладные, PDF и Excel файлы.</div>
-    </details>
-    <details style="background:var(--dark2); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-      <summary style="padding:22px 28px; cursor:pointer; font-weight:600; font-size:15px; display:flex; justify-content:space-between; align-items:center; list-style:none; user-select:none;">
-        Как попробовать бесплатно? <span class="faq-icon" style="color:var(--red); font-size:22px; line-height:1; flex-shrink:0;">+</span>
-      </summary>
-      <div style="padding:0 28px 22px; color:var(--muted); line-height:1.75; font-size:15px;">Просто открой бота — нажми /start. Демо: накладные 1 раз, аналитика 1 раз, калькулятор 5 раз. Регистрация не нужна.</div>
-    </details>
-    <details style="background:var(--dark2); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-      <summary style="padding:22px 28px; cursor:pointer; font-weight:600; font-size:15px; display:flex; justify-content:space-between; align-items:center; list-style:none; user-select:none;">
-        Какие форматы накладных? <span class="faq-icon" style="color:var(--red); font-size:22px; line-height:1; flex-shrink:0;">+</span>
-      </summary>
-      <div style="padding:0 28px 22px; color:var(--muted); line-height:1.75; font-size:15px;">Термопринтер (75x120 и 100x150 мм), A4 по одной, 4 на лист, 9 на лист. Сортировка по товару или по дедлайну.</div>
-    </details>
-    <details style="background:var(--dark2); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-      <summary style="padding:22px 28px; cursor:pointer; font-weight:600; font-size:15px; display:flex; justify-content:space-between; align-items:center; list-style:none; user-select:none;">
-        Как отменить подписку? <span class="faq-icon" style="color:var(--red); font-size:22px; line-height:1; flex-shrink:0;">+</span>
-      </summary>
-      <div style="padding:0 28px 22px; color:var(--muted); line-height:1.75; font-size:15px;">Просто не продлевай. Подписка на 31 день, автоматического списания нет. Захочешь продолжить — оплати снова.</div>
-    </details>
-    <details style="background:var(--dark2); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-      <summary style="padding:22px 28px; cursor:pointer; font-weight:600; font-size:15px; display:flex; justify-content:space-between; align-items:center; list-style:none; user-select:none;">
-        Есть поддержка? <span class="faq-icon" style="color:var(--red); font-size:22px; line-height:1; flex-shrink:0;">+</span>
-      </summary>
-      <div style="padding:0 28px 22px; color:var(--muted); line-height:1.75; font-size:15px;">Да, пишите в Telegram: <a href="https://t.me/peaks_kz" style="color:var(--red);">@peaks_kz</a>. Отвечаем в течение нескольких часов.</div>
-    </details>
-  </div>
-</section>
-<style>
-details summary::-webkit-details-marker { display:none; }
-details[open] .faq-icon { transform:rotate(45deg); display:inline-block; }
-.faq-icon { transition: transform 0.2s; display:inline-block; }
-@media(max-width:700px){
-  section[style*="grid-template-columns:repeat(3"] > div { grid-template-columns:1fr !important; }
-}
-</style>
-
-<div class="divider"></div>
-<div class="cta-section">
-  <div class="cta-inner reveal">
-    <div class="section-label">Начать</div>
-    <div class="section-title">Готов попробовать?</div>
-    <p class="section-desc" style="margin: 16px auto 0; text-align:center;">Открой бота в Telegram и отправь первый ZIP прямо сейчас.</p>
-    <div class="hero-actions">
-      <a href="https://t.me/peaks_kz" class="btn-primary">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-        Открыть бота
-      </a>
+<section class="faqsec" id="faq">
+  <div class="secin">
+    <div class="sr" style="text-align:center"><div class="stag" style="justify-content:center">FAQ</div><h2 class="h2">Часто спрашивают</h2></div>
+    <div class="faqwrap sr">
+      <div class="fq"><button class="fqq" onclick="tf(this)">Нужен ли API ключ или доступ к аккаунту?<span class="fqico">+</span></button><div class="fqa"><div class="fqin">Нет. Бот работает только с файлами которые ты скачиваешь сам из Kaspi Pay и Kaspi Магазина. Файлы обрабатываются в памяти и сразу удаляются — данные нигде не хранятся.</div></div></div>
+      <div class="fq"><button class="fqq" onclick="tf(this)">Где найти нужные файлы в Kaspi Pay?<span class="fqico">+</span></button><div class="fqa"><div class="fqin">Для аналитики: Kaspi Pay → Мой банк → Текущий счёт → Инфо → Отчёт по продажам. И там же → Выписка. Оба файла за одинаковый период. Для накладных: Kaspi Магазин → Заказы → Накладные → Скачать ZIP.</div></div></div>
+      <div class="fq"><button class="fqq" onclick="tf(this)">Как оплатить подписку?<span class="fqico">+</span></button><div class="fqa"><div class="fqin">Через Kaspi — переводом на Kaspi кошелёк. В боте нажми "Подписка" → "Оплатить". Пришли скриншот чека — доступ откроется в течение нескольких минут.</div></div></div>
+      <div class="fq"><button class="fqq" onclick="tf(this)">Работает на iPhone и Android?<span class="fqico">+</span></button><div class="fqa"><div class="fqin">Да, на любом устройстве с Telegram. Дополнительных приложений не нужно.</div></div></div>
+      <div class="fq"><button class="fqq" onclick="tf(this)">Что если не понравится?<span class="fqico">+</span></button><div class="fqa"><div class="fqin">Есть бесплатное демо — накладные 1 раз, аналитика 1 раз, калькулятор 5 раз. Попробуй сначала. Оплата только если убедился что работает.</div></div></div>
     </div>
   </div>
-</div>
+</section>
+
+<!-- ══ CTA ══ -->
+<section class="ctasec">
+  <div class="cta-arc"></div>
+  <div class="sr">
+    <h2 class="ctah">
+      <span class="stroke">Начни</span><br>
+      <span class="fill">работать</span><br>
+      <span class="red">умнее</span>
+    </h2>
+    <p class="ctap">Первый отчёт — бесплатно. Без карты, без регистрации.</p>
+    <a href="https://t.me/kaspitools_bot" class="btn-r magnetic">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
+      <span>Открыть в Telegram</span>
+    </a>
+    <p class="ctanote">2 990 ₸ / мес · Оплата через Kaspi · Отмена в любой момент</p>
+  </div>
+</section>
 
 <footer>
-  <div class="logo">Kaspi<span>Tools</span></div>
-  <p>Работает без API Kaspi · Файлы не сохраняются</p>
-  <p>© 2025 KaspiTools · Path of Peaks</p>
+  <div><div class="flogo"><div class="fmk">KT</div>KaspiTools</div><p class="fcopy">© 2026 Path of Peaks · Казахстан</p></div>
+  <ul class="flinks"><li><a href="https://t.me/kaspitools_bot">Бот</a></li><li><a href="https://t.me/peaks_kz">Поддержка</a></li><li><a href="#faq">FAQ</a></li><li><a href="#pricing">Тарифы</a></li></ul>
 </footer>
 
 <script>
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        setTimeout(() => entry.target.classList.add('visible'), 80);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  document.querySelectorAll('.feature-card').forEach((card, i) => {
-    card.style.transitionDelay = `${i * 60}ms`;
-  });
-</script>
+/* ════ CURSOR ════ */
+const cd=document.getElementById('cd'),cr=document.getElementById('cr');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cd.style.left=mx+'px';cd.style.top=my+'px';
+});
+(function al(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;cr.style.left=rx+'px';cr.style.top=ry+'px';requestAnimationFrame(al)})();
+document.querySelectorAll('a,button,[onclick],input').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hover'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hover'));
+});
+document.querySelectorAll('p,.sub,.fc-desc,.fwdesc,.rvtext,.fqin').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('text'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('text'));
+});
 
-<style>
-.float-btn {
-  position: fixed; bottom: 28px; right: 28px; z-index: 999;
-  display: flex; align-items: center; gap: 10px;
-  background: var(--red); color: #fff;
-  font-family: 'Golos Text', sans-serif;
-  font-weight: 700; font-size: 15px;
-  padding: 14px 24px; border-radius: 100px;
-  text-decoration: none; box-shadow: 0 8px 32px rgba(230,51,41,0.45);
-  transform: translateY(80px); opacity: 0;
-  transition: transform 0.4s ease, opacity 0.4s ease, background 0.2s;
+/* ════ MAGNETIC ════ */
+document.querySelectorAll('.magnetic').forEach(el=>{
+  el.addEventListener('mousemove',e=>{
+    const r=el.getBoundingClientRect();
+    const dx=(e.clientX-r.left-r.width/2)*.3;
+    const dy=(e.clientY-r.top-r.height/2)*.3;
+    el.style.transform=`translate(${dx}px,${dy}px)`;
+  });
+  el.addEventListener('mouseleave',()=>el.style.transform='');
+});
+
+/* ════ CANVAS BG — animated constellation ════ */
+const canv=document.getElementById('bg-canvas');
+const ctx=canv.getContext('2d');
+let W,H,nodes=[];
+function resize(){
+  W=canv.width=window.innerWidth;
+  H=canv.height=window.innerHeight;
 }
-.float-btn.visible { transform: translateY(0); opacity: 1; }
-.float-btn:hover { background: var(--red-dark); box-shadow: 0 12px 40px rgba(230,51,41,0.55); }
-@media(max-width:600px){ .float-btn { bottom:20px; right:16px; font-size:13px; padding:12px 18px; } }
-</style>
-<a href="https://t.me/peaks_kz" class="float-btn" id="floatBtn">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
-  Открыть бота
-</a>
-<script>
-  window.addEventListener('scroll', function() {
-    const btn = document.getElementById('floatBtn');
-    if (window.scrollY > 400) btn.classList.add('visible');
-    else btn.classList.remove('visible');
+resize();window.addEventListener('resize',resize);
+class Node{
+  constructor(){this.reset()}
+  reset(){
+    this.x=Math.random()*W;this.y=Math.random()*H;
+    this.vx=(Math.random()-.5)*.3;this.vy=(Math.random()-.5)*.3;
+    this.r=Math.random()*.8+.2;this.a=Math.random()*.3+.05;
+  }
+  update(){
+    this.x+=this.vx;this.y+=this.vy;
+    if(this.x<0||this.x>W)this.vx*=-1;
+    if(this.y<0||this.y>H)this.vy*=-1;
+  }
+}
+for(let i=0;i<70;i++)nodes.push(new Node());
+let animFrame;
+function drawBG(){
+  ctx.clearRect(0,0,W,H);
+  nodes.forEach(n=>{
+    n.update();
+    ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,61,0,${n.a})`;ctx.fill();
   });
-</script>
+  // Connections
+  for(let i=0;i<nodes.length;i++){
+    for(let j=i+1;j<nodes.length;j++){
+      const dx=nodes[i].x-nodes[j].x;const dy=nodes[i].y-nodes[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){
+        ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);
+        ctx.strokeStyle=`rgba(255,61,0,${.06*(1-d/120)})`;ctx.lineWidth=.5;ctx.stroke();
+      }
+    }
+  }
+  // Mouse proximity glow
+  nodes.forEach(n=>{
+    const dx=n.x-mx;const dy=n.y-my;
+    const d=Math.sqrt(dx*dx+dy*dy);
+    if(d<150){
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r*2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,61,0,${.4*(1-d/150)})`;ctx.fill();
+    }
+  });
+  animFrame=requestAnimationFrame(drawBG);
+}
+drawBG();
 
+/* ════ SCRAMBLE TEXT ════ */
+const chars='АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%';
+let scrambleInterval;
+function scramble(el,finalText,duration=1200){
+  clearInterval(scrambleInterval);
+  let iteration=0;
+  const len=finalText.length;
+  scrambleInterval=setInterval(()=>{
+    el.textContent=finalText.split('').map((c,i)=>{
+      if(i<Math.floor(iteration))return c;
+      return chars[Math.floor(Math.random()*chars.length)];
+    }).join('');
+    iteration+=len/(duration/30);
+    if(iteration>=len){el.textContent=finalText;clearInterval(scrambleInterval)}
+  },30);
+}
+const st=document.getElementById('scramble-target');
+setTimeout(()=>scramble(st,'умнее',1500),600);
+setInterval(()=>scramble(st,'умнее',1200),6000);
+
+/* ════ 3D CARD TILT ════ */
+document.querySelectorAll('.fcard').forEach(card=>{
+  const glow=card.querySelector('.fcard-glow');
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5;
+    const y=(e.clientY-r.top)/r.height-.5;
+    card.style.transform=`perspective(800px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateZ(4px)`;
+    if(glow){glow.style.left=(e.clientX-r.left)+'px';glow.style.top=(e.clientY-r.top)+'px'}
+  });
+  card.addEventListener('mouseleave',()=>{
+    card.style.transform='';
+  });
+});
+
+/* ════ NAV ════ */
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('s',scrollY>30));
+
+/* ════ MOBILE ════ */
+function tmob(){document.getElementById('mob').classList.toggle('o')}
+function cmob(){document.getElementById('mob').classList.remove('o')}
+
+/* ════ TICKER ════ */
+const ti=['Накладные ZIP → PDF','Аналитика Kaspi Pay','Юнит-экономика','CNY · USD · EUR · RUB','QR-коды','Сравнение периодов','Дайджест каждый пн','Без API ключей','Оплата через Kaspi'];
+const ht=document.getElementById('htinner');
+[...ti,...ti].forEach(t=>{ht.innerHTML+=`<div class="hti"><span class="sep">◆</span>${t}</div>`});
+
+/* ════ CALC ════ */
+function rc(){
+  const o=+document.getElementById('s1').value;
+  const t=+document.getElementById('s2').value;
+  const d=+document.getElementById('s3').value;
+  document.getElementById('v1').textContent=o;
+  document.getElementById('v2').textContent=t;
+  document.getElementById('v3').textContent=d;
+  ['s1','s2','s3'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.style.setProperty('--v',((el.value-el.min)/(el.max-el.min)*100).toFixed(1)+'%');
+  });
+  const h=(o*t*d/60).toFixed(1);
+  const s=(o*t*d*.95/60).toFixed(1);
+  document.getElementById('rh').textContent=h;
+  document.getElementById('rs').textContent=s;
+  document.getElementById('rc2').textContent=(s>0?Math.round(3990/s):0)+' ₸';
+}
+rc();
+
+/* ════ DEMO CHAT ════ */
+const SC={
+  analytics:[
+    {t:'usr',x:'Отправляю два PDF из Kaspi Pay 📎📎'},
+    {t:'typ'},
+    {t:'bot',h:`📊 <strong>Отчёт 01.12–31.12.2025</strong><br><br><div class="pr"><span>💰 Выручка</span><span>2 221 862 ₸</span></div><div class="pr"><span>🛒 Заказов</span><span>320 шт</span></div><div class="pr"><span>📦 Средний чек</span><span>6 131 ₸</span></div><div class="pr g"><span>✅ Чистая прибыль</span><span>1 740 069 ₸</span></div>`},
+    {t:'bot',x:'📎 Excel готов — 3 листа: Сводка · Топ товаров · По дням'},
+  ],
+  waybills:[
+    {t:'usr',x:'Отправляю ZIP с накладными 📎'},
+    {t:'typ'},
+    {t:'bot',x:'📦 Архив получен! Выбери формат:'},
+    {t:'usr',x:'9 на 1 лист · по дедлайну'},
+    {t:'typ'},
+    {t:'bot',h:`✅ <strong>Готово!</strong> 147 накладных<br>📄 9 на листе · по дедлайну<br>📋 17 листов A4`},
+  ],
+  calc:[
+    {t:'usr',x:'Юнит-экономика товара за 2990 ₸'},
+    {t:'bot',x:'📦 Введи себестоимость (₸):'},
+    {t:'usr',x:'1800'},
+    {t:'typ'},
+    {t:'bot',h:`<div class="pr"><span>💰 Цена</span><span>2 990 ₸</span></div><div class="pr"><span>📦 Себест.</span><span>-1 800 ₸</span></div><div class="pr"><span>🏪 Комиссия</span><span>-749 ₸</span></div><div class="pr g"><span>✅ Прибыль</span><span>2 091 ₸ (41.9%)</span></div>`},
+  ],
+  rates:[
+    {t:'usr',x:'Курсы валют'},
+    {t:'typ'},
+    {t:'bot',h:`💱 <strong>Нацбанк РК</strong><br><br><div class="pr"><span>🇨🇳 CNY</span><span>71.43 ₸</span></div><div class="pr"><span>🇺🇸 USD</span><span>511.20 ₸</span></div><div class="pr"><span>🇪🇺 EUR</span><span>553.80 ₸</span></div>`},
+    {t:'usr',x:'500 CNY в тенге?'},
+    {t:'typ'},
+    {t:'bot',h:`500 CNY = <strong>35 715 ₸</strong>`},
+  ],
+};
+let dt=[];
+function sw(k,el){
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('a'));el.classList.add('a');rd(k);
+}
+function rd(k){
+  dt.forEach(clearTimeout);dt=[];
+  const chat=document.getElementById('dc'),typ=document.getElementById('dt');
+  chat.innerHTML='';chat.appendChild(typ);typ.classList.remove('s');
+  let delay=400;
+  SC[k].forEach(m=>{
+    dt.push(setTimeout(()=>{
+      if(m.t==='typ'){typ.classList.add('s');chat.scrollTop=1e5}
+      else{
+        typ.classList.remove('s');
+        const el=document.createElement('div');
+        el.className='pm '+(m.t==='usr'?'usr':'bot');
+        el.innerHTML=m.h||m.x;
+        chat.insertBefore(el,typ);
+        requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('s')));
+        chat.scrollTop=1e5;
+      }
+    },delay));
+    delay+=m.t==='typ'?900:m.t==='usr'?750:1000;
+  });
+}
+rd('analytics');
+
+/* ════ FAQ ════ */
+function tf(btn){
+  const item=btn.parentElement,ans=item.querySelector('.fqa'),open=item.classList.contains('open');
+  document.querySelectorAll('.fq.open').forEach(el=>{el.classList.remove('open');el.querySelector('.fqa').style.maxHeight='0'});
+  if(!open){item.classList.add('open');ans.style.maxHeight=ans.scrollHeight+'px'}
+}
+
+/* ════ ANIMATED COUNTERS ════ */
+function animCount(el,target,suf,dur=1400){
+  const start=performance.now();
+  const isF=String(target).includes('.');
+  (function tick(now){
+    const p=Math.min((now-start)/dur,1);
+    const e=1-Math.pow(1-p,4);
+    const v=isF?(target*e).toFixed(1):Math.round(target*e);
+    el.textContent=Number(v).toLocaleString('ru')+suf;
+    if(p<1)requestAnimationFrame(tick);
+  })(start);
+}
+const cio=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(!e.isIntersecting)return;
+  const el=e.target,d=el.dataset;
+  if(d.count)animCount(el,parseFloat(d.count),d.suf||'',parseInt(d.dur||1400));
+  cio.unobserve(el);
+}),{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+/* ════ SCROLL REVEAL ════ */
+const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.08});
+document.querySelectorAll('.sr').forEach(el=>io.observe(el));
+</script>
 </body>
 </html>
