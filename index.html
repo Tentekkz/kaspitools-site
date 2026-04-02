@@ -1,68 +1,212 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KaspiTools — Скоро открытие</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #333;
-            text-align: center;
-        }
-        .container {
-            background: white;
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 90%;
-        }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: #e31e24; /* Фирменный красный цвет в стиле Kaspi */
-        }
-        p {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            color: #666;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #e31e24;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 2s linear infinite;
-            margin: 2rem auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .footer {
-            margin-top: 2rem;
-            font-size: 0.9rem;
-            color: #999;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KaspiTools — Идут технические работы</title>
+<meta name="description" content="KaspiTools временно недоступен. Идут плановые технические работы.">
+
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;700;900&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --void: #060608;
+  --s1: #0c0c10;
+  --s2: #111118;
+  --edge: rgba(255,255,255,.06);
+  --r: #ff3d00;
+  --snow: #f5f4f0;
+  --grey: #7a7a8a;
+  --fh: 'Unbounded', sans-serif;
+  --fb: 'Instrument Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin:0; padding:0; }
+body {
+  font-family: var(--fb);
+  background: var(--void);
+  color: var(--snow);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: none;
+  text-align: center;
+}
+
+.grain {
+  position: fixed;
+  inset: -200%;
+  width: 400%;
+  height: 400%;
+  opacity: .03;
+  pointer-events: none;
+  z-index: 1;
+  animation: grain 6s steps(7) infinite;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  padding: 2rem;
+}
+
+.logo {
+  font-family: var(--fh);
+  font-size: 4.5rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.nmark {
+  width: 68px;
+  height: 68px;
+  background: var(--r);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  color: #fff;
+  font-weight: 900;
+}
+
+.status {
+  font-size: 1.35rem;
+  color: var(--r);
+  margin-bottom: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-family: var(--fh);
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.5rem;
+}
+
+p {
+  font-size: 1.15rem;
+  color: var(--grey);
+  max-width: 480px;
+  margin: 0 auto 3rem;
+  line-height: 1.7;
+}
+
+.btn-bot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: var(--r);
+  color: #fff;
+  font-family: var(--fh);
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 1.1rem 2.8rem;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 10px 30px rgba(255,61,0,0.3);
+}
+
+.btn-bot:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(255,61,0,0.4);
+}
+
+.footer-text {
+  margin-top: 4rem;
+  font-size: 0.9rem;
+  color: var(--grey);
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>KaspiTools</h1>
-        <div class="loader"></div>
-        <p>Ведутся технические работы.<br>Совсем скоро мы запустим лучший сервис для работы с Каспи!</p>
-        <div class="footer">
-            © 2026 kaspitools.kz  -  Path of Peaks
-        </div>
-    </div>
+
+<div class="grain"></div>
+<canvas id="bg-canvas"></canvas>
+
+<div class="container">
+  <div class="logo">
+    <div class="nmark">KT</div>
+    KaspiTools
+  </div>
+
+  <div class="status">● Технические работы</div>
+  <h1>Сайт временно недоступен</h1>
+  <p>
+    Мы проводим плановое обновление и улучшение сервиса.<br>
+    Это займёт совсем немного времени.
+  </p>
+
+  <a href="https://t.me/kaspitoolsbot" class="btn-bot" target="_blank">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/>
+    </svg>
+    Перейти в Telegram-бот
+  </a>
+
+  <div class="footer-text">
+    Пока бот работает в обычном режиме<br>
+    Ты можешь продолжать пользоваться всеми функциями напрямую в Telegram
+  </div>
+</div>
+
+<script>
+// Простой курсор
+const cd = document.createElement('div');
+cd.style.cssText = 'position:fixed;width:8px;height:8px;background:#ff3d00;border-radius:50%;transform:translate(-50%,-50%);z-index:99999;pointer-events:none;';
+document.body.appendChild(cd);
+
+document.addEventListener('mousemove', e => {
+  cd.style.left = e.clientX + 'px';
+  cd.style.top = e.clientY + 'px';
+});
+
+// Canvas background (как в оригинале)
+const canv = document.getElementById('bg-canvas');
+const ctx = canv.getContext('2d');
+let W, H;
+
+function resize() {
+  W = canv.width = window.innerWidth;
+  H = canv.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function drawBG() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(255,61,0,0.08)';
+  for (let i = 0; i < 40; i++) {
+    const x = Math.random() * W;
+    const y = Math.random() * H;
+    ctx.beginPath();
+    ctx.arc(x, y, Math.random() * 2 + 0.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  requestAnimationFrame(drawBG);
+}
+drawBG();
+</script>
+
 </body>
 </html>
