@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KaspiTools — Telegram-бот для Kaspi продавцов</title>
+<title>KaspiTools — Telegram-бот для Kaspi продавцов | Накладные, аналитика, калькулятор</title>
+<meta name="description" content="Автоматизируй рутину за 10 секунд. Накладные ZIP→PDF, аналитика из Kaspi Pay, калькулятор маржи. Первый отчёт бесплатно.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;700;900&family=Nunito:wght@800;900&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -37,93 +38,9 @@ a{text-decoration:none;color:inherit}
 #cur{position:fixed;z-index:99999;pointer-events:none;top:0;left:0}
 #cd{position:absolute;width:8px;height:8px;background:var(--r);border-radius:50%;transform:translate(-50%,-50%);transition:width .35s var(--e),height .35s var(--e)}
 #cr{position:absolute;width:36px;height:36px;border:1px solid rgba(255,61,0,.4);border-radius:50%;transform:translate(-50%,-50%);transition:all .2s var(--e)}
-
-/* ── HERO ── */
-.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 5%;}
-.mega-line{font-family:var(--fh);font-size:clamp(3rem,10vw,8rem);font-weight:900;line-height:.9;text-transform:uppercase;}
-.red{color:var(--r)}
+body.hover #cd{width:56px;height:56px;background:rgba(255,61,0,.12)}
 
 /* ── NAV ── */
-nav{position:fixed;top:0;width:100%;height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;z-index:100;background:rgba(6,6,8,0.8);backdrop-filter:blur(10px);}
-.lang-sw{display:flex;gap:5px;background:var(--s2);padding:5px;border-radius:8px;}
-.lang-btn{padding:5px 12px;border-radius:5px;border:none;background:none;color:var(--grey);cursor:none;font-family:var(--fh);font-size:0.7rem;font-weight:700;}
-.lang-btn.active{background:var(--r);color:#fff;}
-
-.btn-r{background:var(--r);color:#fff;padding:15px 30px;border-radius:10px;font-family:var(--fh);font-weight:700;display:inline-block;margin-top:20px;}
-
-/* ── GRAIN EFFECT ── */
-.grain{position:fixed;inset:-200%;width:400%;height:400%;opacity:.02;pointer-events:none;z-index:9997;animation:grain 5s steps(7) infinite;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-@keyframes grain{0%{transform:translate(0,0)}14%{transform:translate(-4%,-8%)}100%{transform:translate(0,0)}}
-</style>
-</head>
-<body>
-
-<div id="cur"><div id="cd"></div><div id="cr"></div></div>
-<div class="grain"></div>
-
-<nav>
-  <div class="nlogo">KASPITOOLS</div>
-  <div class="lang-sw">
-    <button class="lang-btn active" onclick="setLang('ru')">RU</button>
-    <button class="lang-btn" onclick="setLang('kz')">KZ</button>
-  </div>
-</nav>
-
-<section class="hero">
-  <div class="mega-line"><span data-i18n="hero_1">Продавай</span></div>
-  <div class="mega-line red"><span data-i18n="hero_2">Быстрее</span></div>
-  <div class="mega-line"><span data-i18n="hero_3">На Kaspi</span></div>
-  
-  <a href="#" class="btn-r">
-    <span data-i18n="btn_start">Начать бесплатно</span>
-  </a>
-</section>
-
-<script>
-/* ══════════════════════════════════════════
-   LOGIC
-══════════════════════════════════════════ */
-
-// 1. Перевод
-const LANG = {
-  ru: {
-    hero_1: 'Продавай',
-    hero_2: 'Быстрее',
-    hero_3: 'На Kaspi',
-    btn_start: 'Начать бесплатно'
-  },
-  kz: {
-    hero_1: 'Kaspi-де',
-    hero_2: 'Жылдам',
-    hero_3: 'Сат',
-    btn_start: 'Тегін бастау'
-  }
-};
-
-function setLang(lang) {
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
-  });
-
-  const t = LANG[lang];
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (t[key]) el.textContent = t[key];
-  });
-}
-
-// 2. Кастомный курсор
-const cur = document.getElementById('cur');
-document.addEventListener('mousemove', (e) => {
-  cur.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-});
-
-// 3. Эффект увеличения курсора при наведении на ссылки
-document.querySelectorAll('a, button').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('hover'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('hover'));
-});
-
-</script>
-</body>
-</html>
+nav{position:fixed;top:0;left:0;right:0;z-index:500;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;background:rgba(6,6,8,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--edge)}
+.nlogo{font-family:var(--fh);font-size:.95rem;font-weight:900;}
+.lang-sw{display:flex;background:var(--s2);padding:2px;border-radius:6px;border:1px solid var(--
