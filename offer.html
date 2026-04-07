@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Договор публичной оферты — KaspiTools</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void: #060608;
+  --edge: rgba(255,255,255,.06);
+  --r:    #ff3d00;
+  --snow: #f5f4f0;
+  --grey: #7a7a8a;
+  --fh:   'Unbounded', sans-serif;
+  --fb:   'Instrument Sans', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--void);color:var(--snow);line-height:1.7;min-height:100vh}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(1.5rem,4vw,3rem);background:rgba(6,6,8,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--edge)}
+.nlogo{font-family:var(--fh);font-size:.9rem;font-weight:900;letter-spacing:-.03em;display:flex;align-items:center;gap:.5rem;text-decoration:none;color:var(--snow)}
+.nmark{width:28px;height:28px;background:var(--r);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;color:#fff}
+.back-link{font-size:.78rem;color:var(--grey);text-decoration:none;display:flex;align-items:center;gap:.4rem;transition:color .2s}
+.back-link:hover{color:var(--snow)}
+
+/* CONTENT */
+.wrap{max-width:780px;margin:0 auto;padding:3.5rem clamp(1.5rem,4vw,3rem) 6rem}
+.doc-tag{font-family:var(--fh);font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--r);margin-bottom:1.2rem;display:flex;align-items:center;gap:.5rem}
+.doc-tag::before{content:'';width:20px;height:1px;background:var(--r)}
+h1{font-family:var(--fh);font-size:clamp(1.4rem,3vw,2rem);font-weight:900;letter-spacing:-.04em;line-height:1.1;margin-bottom:.5rem}
+.doc-sub{color:var(--grey);font-size:.85rem;margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--edge)}
+
+.section{margin-bottom:2.5rem}
+.section-title{font-family:var(--fh);font-size:.82rem;font-weight:700;letter-spacing:-.01em;color:var(--r);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--edge)}
+p{color:rgba(245,244,240,.8);font-size:.9rem;margin-bottom:.9rem}
+ul{padding-left:1.2rem;margin-bottom:.9rem}
+ul li{color:rgba(245,244,240,.8);font-size:.9rem;margin-bottom:.4rem}
+ul li::marker{color:var(--r)}
+b,strong{color:var(--snow);font-weight:600}
+
+/* REQUISITES */
+.requisites{background:rgba(255,61,0,.04);border:1px solid rgba(255,61,0,.12);border-radius:12px;padding:1.8rem;margin-top:3rem}
+.req-title{font-family:var(--fh);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--r);margin-bottom:1.2rem}
+.req-row{display:flex;gap:1rem;margin-bottom:.5rem;font-size:.85rem}
+.req-label{color:var(--grey);min-width:80px;flex-shrink:0}
+.req-val{color:var(--snow)}
+.req-val a{color:var(--r);text-decoration:none}
+.req-val a:hover{text-decoration:underline}
+
+/* PAYMENT BLOCK */
+.payment-block{background:rgba(255,255,255,.03);border:1px solid var(--edge);border-radius:12px;padding:1.8rem;margin-bottom:2.5rem}
+.pb-title{font-family:var(--fh);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--grey);margin-bottom:1.2rem}
+
+/* FOOTER */
+footer{border-top:1px solid var(--edge);padding:2rem clamp(1.5rem,4vw,3rem);display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between}
+.fcopy{font-size:.75rem;color:var(--grey)}
+.flinks{display:flex;gap:1.5rem;list-style:none}
+.flinks a{font-size:.75rem;color:var(--grey);transition:color .2s}
+.flinks a:hover{color:var(--snow)}
+
+@media(max-width:600px){
+  .req-row{flex-direction:column;gap:.2rem}
+  .req-label{min-width:auto}
+  footer{flex-direction:column;align-items:flex-start;gap:.8rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nlogo"><div class="nmark">KT</div>KaspiTools</a>
+  <a href="/" class="back-link">← На главную</a>
+</nav>
+
+<div class="wrap">
+  <div class="doc-tag">Юридический документ</div>
+  <h1>Договор публичной оферты</h1>
+  <p class="doc-sub">на предоставление услуг Telegram-бота KaspiTools (@kaspitools_bot) · Дата: 01.04.2026</p>
+
+  <!-- ПОЛИТИКА ОПЛАТЫ -->
+  <div class="payment-block">
+    <div class="pb-title">Политика проведения платежей · Оплата банковской картой онлайн</div>
+    <p>Наш Telegram-бот подключен к интернет-эквайрингу. Вы можете оплатить подписку банковской картой Visa или Mastercard прямо в Telegram-боте. После подтверждения тарифа откроется защищённое окно платёжного сервиса <strong>Robokassa</strong> (robokassa.kz), где необходимо ввести данные карты. Используется протокол 3D Secure.</p>
+    <p>В поля требуется ввести: номер карты, email, срок действия карты, трёхзначный код CVV2 (VISA) или CVC2 (MasterCard) — расположен на обороте карты.</p>
+    <p><strong>Случаи отказа в платеже:</strong> неверные реквизиты карты, недостаточно средств, интернет-платежи не разрешены, превышен дневной лимит. По вопросам обращайтесь в банк-эмитент или в поддержку: <a href="https://t.me/peaks_kz" style="color:var(--r)">@peaks_kz</a></p>
+    <p><strong>Безопасность:</strong> Robokassa обрабатывает данные карты по стандарту PCI DSS с шифрованием SSL. Данные карты не передаются третьим лицам и не сохраняются на нашем сервере. По вопросам платежей: <a href="mailto:support@robokassa.kz" style="color:var(--r)">support@robokassa.kz</a></p>
+  </div>
+
+  <!-- ОФЕРТА -->
+  <p>Текст настоящего Договора является публичной офертой на использование онлайн-сервиса «@kaspitools_bot» (далее — Telegram-бот), доступ к которому предоставляет <strong>ИП Path of Peaks</strong> (далее — Администратор).</p>
+  <p>Оплата услуг физическим лицом (далее — Пользователь) является акцептом данной оферты, что равносильно заключению договора на изложенных условиях.</p>
+
+  <div class="section">
+    <div class="section-title">1. Основные положения</div>
+    <p>1.1. Договор заключён в соответствии с действующим законодательством Республики Казахстан.</p>
+    <p>1.2. Термины:</p>
+    <ul>
+      <li><strong>«Оферта»</strong> — публичное предложение на использование онлайн-сервиса;</li>
+      <li><strong>«Акцепт»</strong> — безоговорочное принятие условий Договора в полном объёме;</li>
+      <li><strong>«Администратор»</strong> — ИП Path of Peaks, сервис-провайдер и собственник Telegram-бота;</li>
+      <li><strong>«Пользователь»</strong> — физическое лицо, принимающее условия Договора;</li>
+      <li><strong>«Услуги»</strong> — автоматизация работы продавцов на маркетплейсе Kaspi.kz: обработка накладных, аналитика продаж, калькулятор юнит-экономики, курсы валют, QR-коды;</li>
+      <li><strong>«Telegram-бот»</strong> — бот, доступный по адресу @kaspitools_bot.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">2. Предмет оферты</div>
+    <p>2.1. Администратор предоставляет услуги по автоматизации работы продавцов на маркетплейсе Kaspi.kz посредством Telegram-бота @kaspitools_bot.</p>
+    <p>2.2. Администратор обязуется оказывать техническое обслуживание и поддержку Telegram-бота.</p>
+    <p>2.3. Действующая редакция Договора доступна в Telegram-боте по команде /offer, а также на сайте <a href="https://kaspitools.kz/offer.html" style="color:var(--r)">kaspitools.kz/offer.html</a></p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">3. Использование сервиса</div>
+    <p>3.1. Для получения услуг Пользователь производит оплату выбранного тарифа. Регистрация осуществляется автоматически при первом обращении к Telegram-боту.</p>
+    <p>3.2. Оплата означает полное согласие с условиями Договора. День оплаты считается днём заключения Договора на срок 31 (тридцать один) календарный день.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">4. Конфиденциальность и защита данных</div>
+    <p>4.1. Администратор обрабатывает: Telegram ID и имя — для идентификации; дата и статус подписки — для управления доступом; статистика использования — для улучшения сервиса.</p>
+    <p>4.2. Загружаемые файлы (ZIP, XLSX) обрабатываются только в оперативной памяти сервера и удаляются сразу после обработки. На сервере не сохраняются.</p>
+    <p>4.3. Администратор обязуется не разглашать информацию о Пользователе третьим лицам, за исключением случаев, предусмотренных законодательством РК.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">5. Права и обязанности сторон</div>
+    <p><strong>5.1. Администратор обязуется:</strong></p>
+    <ul>
+      <li>обеспечивать работу сервиса не менее 95% времени в месяц;</li>
+      <li>не разглашать персональные данные Пользователя;</li>
+      <li>уведомлять об изменении условий за 3 дня через Telegram-бот.</li>
+    </ul>
+    <p><strong>5.2. Пользователь обязуется:</strong></p>
+    <ul>
+      <li>не передавать доступ к аккаунту третьим лицам;</li>
+      <li>использовать сервис в законных целях;</li>
+      <li>не предпринимать действий, нарушающих работу Telegram-бота.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">6. Порядок оплаты</div>
+    <p>6.1. Стоимость подписки: <strong>2 990 (две тысячи девятьсот девяносто) тенге</strong> в месяц (31 день).</p>
+    <p>6.2. Оплата производится банковскими картами через платёжный сервис Robokassa. Доступ открывается автоматически в течение 5 секунд после подтверждения оплаты.</p>
+    <p>6.3. Услуги предоставляются при условии 100% предоплаты.</p>
+    <p>6.4. Администратор уведомляет Пользователя за 7 и 3 дня до окончания оплаченного периода.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">7. Ответственность сторон и разрешение споров</div>
+    <p>7.1. Стороны несут ответственность в соответствии с действующим законодательством Республики Казахстан.</p>
+    <p>7.2. Администратор не несёт ответственности за решения, принятые Пользователем на основании данных отчётов Telegram-бота.</p>
+    <p>7.3. Споры разрешаются путём мирных переговоров, при недостижении согласия — в судебном порядке по месту регистрации Администратора.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">8. Срок действия и расторжение</div>
+    <p>8.1. Договор вступает в силу с момента оплаты и действует 31 (тридцать один) день.</p>
+    <p>8.2. Пользователь вправе отказаться от услуг в течение 3 (трёх) календарных дней с даты оплаты при условии неиспользования Услуг. Заявление направляется на <a href="https://t.me/peaks_kz" style="color:var(--r)">@peaks_kz</a>.</p>
+    <p>8.3. Возврат производится в течение 14 (четырнадцати) рабочих дней после подтверждения Администратором.</p>
+    <p>8.4. При нарушении условий Договора Администратор вправе заблокировать доступ без возврата средств.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">9. Прочие условия</div>
+    <p>9.1. Администратор вправе изменить условия Договора, уведомив через Telegram-бот за 3 дня.</p>
+    <p>9.2. Стороны освобождаются от ответственности при форс-мажорных обстоятельствах (стихийные бедствия, военные действия, решения государственных органов).</p>
+    <p>9.3. Во всём остальном Стороны руководствуются законодательством Республики Казахстан.</p>
+  </div>
+
+  <div class="requisites">
+    <div class="req-title">Реквизиты Администратора</div>
+    <div class="req-row"><span class="req-label">Компания</span><span class="req-val"><strong>ИП Path of Peaks</strong></span></div>
+    <div class="req-row"><span class="req-label">ИИН</span><span class="req-val">950313300415</span></div>
+    <div class="req-row"><span class="req-label">Адрес</span><span class="req-val">040400, РК, Алматинская обл., г. Есик, 1 мкр., д. 6</span></div>
+    <div class="req-row"><span class="req-label">Email</span><span class="req-val"><a href="mailto:ergazin013@gmail.com">ergazin013@gmail.com</a></span></div>
+    <div class="req-row"><span class="req-label">Telegram</span><span class="req-val"><a href="https://t.me/peaks_kz">@peaks_kz</a></span></div>
+    <div class="req-row"><span class="req-label">Сайт</span><span class="req-val"><a href="https://kaspitools.kz">kaspitools.kz</a></span></div>
+  </div>
+</div>
+
+<footer>
+  <p class="fcopy">© 2026 Path of Peaks · Казахстан</p>
+  <ul class="flinks">
+    <li><a href="/">Главная</a></li>
+    <li><a href="/offer.html">Оферта</a></li>
+    <li><a href="/privacy.html">Конфиденциальность</a></li>
+    <li><a href="https://t.me/kaspitoolsbot">Бот</a></li>
+  </ul>
+</footer>
+
+</body>
+</html>
