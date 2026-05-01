@@ -3,41 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KitSeller — накладные Kaspi за 10 секунд | Аналитика Kaspi Pay в Excel</title>
+<title>KaspiTools — накладные Kaspi за 10 секунд | Аналитика Kaspi Pay в Excel</title>
 <meta name="description" content="Telegram-бот для Kaspi продавцов: накладные ZIP→PDF, аналитика Kaspi Pay — Excel за 30 секунд, калькулятор маржи. 14 дней бесплатно, потом 990 ₸/мес.">
 <meta name="keywords" content="накладные Kaspi, распечатать накладные Kaspi, аналитика Kaspi Pay, калькулятор маржи Kaspi, жүкқұжаттар Kaspi, юнит-экономика Kaspi, инструменты Kaspi продавец">
 <meta name="robots" content="index, follow">
-<meta name="author" content="KitSeller">
-<meta property="og:title" content="KitSeller — накладные и аналитика для Kaspi продавцов">
+<meta name="author" content="KaspiTools">
+<link rel="canonical" href="https://kaspitools.kz/">
+<meta property="og:title" content="KaspiTools — накладные и аналитика для Kaspi продавцов">
 <meta property="og:description" content="Накладные ZIP→PDF за 10 секунд. Аналитика Kaspi Pay — Excel за 30 секунд. Калькулятор маржи. 14 дней бесплатно, потом 990 ₸/мес.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://tentekkz.github.io/KitSellerSite/og-image.png">
+<meta property="og:url" content="https://kaspitools.kz/">
+<meta property="og:image" content="https://kaspitools.kz/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="ru_KZ">
 <meta property="og:locale:alternate" content="kk_KZ">
-<meta property="og:site_name" content="KitSeller">
+<meta property="og:site_name" content="KaspiTools">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="KitSeller — накладные и аналитика для Kaspi продавцов">
+<meta name="twitter:title" content="KaspiTools — накладные и аналитика для Kaspi продавцов">
 <meta name="twitter:description" content="Накладные ZIP→PDF за 10 секунд. Аналитика Kaspi Pay — Excel за 30 секунд. 14 дней бесплатно.">
-<meta name="twitter:image" content="https://tentekkz.github.io/KitSellerSite/og-image.png">
+<meta name="twitter:image" content="https://kaspitools.kz/og-image.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "KitSeller",
+  "name": "KaspiTools",
   "description": "Telegram-бот для автоматизации работы Kaspi продавцов. Накладные ZIP→PDF за 10 секунд, аналитика Kaspi Pay в Excel, калькулятор маржи.",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Telegram",
   "inLanguage": ["ru", "kk"],
   "offers": {"@type": "Offer", "price": "990", "priceCurrency": "KZT"},
-  "url": "https://tentekkz.github.io/KitSellerSite",
-  "sameAs": ["https://t.me/kitseller_bot"],
+  "url": "https://kaspitools.kz",
+  "sameAs": ["https://t.me/kaspitoolsbot"],
   "provider": {"@type": "Organization", "name": "Path of Peaks", "address": {"@type": "PostalAddress", "addressCountry": "KZ"}},
   "featureList": ["Накладные ZIP→PDF за 10 секунд","Разбивка накладных по товарам","Сборочный лист Excel","Аналитика Kaspi Pay — 17 листов Excel","Калькулятор маржи с учётом комиссии и ИПН","Курсы НБ РК с уведомлениями","QR-коды для Kaspi магазина"]
 }
 </script>
-<link rel="icon" href="kitseller-icon.png"><rect width='32' height='32' rx='8' fill='%230a0a0a'/><text y='23' x='5' font-size='20' font-family='sans-serif' font-weight='900' fill='%23ff3d00'>K</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0a'/><text y='23' x='5' font-size='20' font-family='sans-serif' font-weight='900' fill='%23ff3d00'>K</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;700;900&family=Nunito:wght@800;900&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -538,29 +540,6 @@ footer{border-top:1px solid var(--edge);padding:2.5rem clamp(1.5rem,4vw,3rem);di
   #analytics .secin > .sr[style*="grid-template-columns:repeat(4"]{grid-template-columns:1fr 1fr!important}
   #analytics .secin > .sr[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
 }
-
-/* KitSeller minimal rebrand: keep original layout, lighten palette */
-:root{--void:#ffffff!important;--s1:#ffffff!important;--s2:#f7f8fa!important;--edge:rgba(17,24,39,.10)!important;--edge2:rgba(17,24,39,.16)!important;--snow:#111827!important;--grey:#667085!important;--grey2:#98a2b3!important;--r:#ff3b1f!important;--r2:#dc2f16!important;--green:#16a34a!important}
-html,body{background:#fff!important;color:#111827!important}
-body{background:linear-gradient(180deg,#ffffff 0%,#f7f8fa 58%,#ffffff 100%)!important}
-#cur,#bg-canvas,.grain{display:none!important}
-.brand-logo{height:48px;width:auto;display:block}.footer-logo{height:42px;width:auto;display:block}
-nav{background:rgba(255,255,255,.88)!important;border-bottom:1px solid rgba(17,24,39,.08)!important;backdrop-filter:blur(16px)!important;box-shadow:0 8px 30px rgba(17,24,39,.04)!important}
-.nlinks a,.mob a{color:#667085!important}.nlinks a:hover,.mob a:hover{color:#111827!important}.nlinks a::after{background:#ff3b1f!important}
-.lang-sw{background:#f7f8fa!important;border:1px solid rgba(17,24,39,.10)!important}.lang-btn{color:#667085!important}.lang-btn.active{background:#ff3b1f!important;color:#fff!important}
-.ncta,.btn-r{background:#ff3b1f!important;color:#fff!important;border-color:#ff3b1f!important;box-shadow:0 14px 34px rgba(255,59,31,.20)!important}.ncta:hover,.btn-r:hover{background:#dc2f16!important;border-color:#dc2f16!important}
-.btn-o{background:#fff!important;color:#111827!important;border:1px solid rgba(17,24,39,.12)!important}
-.hero,.flagship-sec,.extra-sec,.calcsec,.faqsec,.pricesec,.ctasec,.rvsec,.demosec,.featsec,.fwsec,.ba-sec{background:transparent!important}
-.card,.flagship-card,.extra-card,.ba-col,.fcard,.fwcard,.price-card,.faq-item,.rv-card,.demo-card,.calc-card,.stats-bar,.cbox,.panel,.pcard,.fq{background:#fff!important;color:#111827!important;border:1px solid rgba(17,24,39,.10)!important;box-shadow:0 18px 55px rgba(17,24,39,.06)!important}
-h1,h2,h3,h4,.title,.headline,.h2,.fl-title,.extra-title,.fwtitle,.fc-title,.ctah,.rv-title,.pamount,.sbn,.faq-q,.calc-title{color:#111827!important}
-p,li,.muted,.subtitle,.desc,.text-muted,.hero-desc,.fl-desc,.extra-desc,.sbl,.sec-kicker,.fc-desc,.fwcopy,.calc-desc,.rv-desc,.faq-a,.fcopy,.pnote,.pfeat,.stat-label{color:#667085!important}
-.red,.acc,.h2 .red,.ctah .red,.fc-title .red,.fwtitle .red,.mega-line .red{color:#ff3b1f!important}
-.badge,.tag,.label,.fl-tag,.stag{background:#fff1f0!important;color:#b42318!important;border:1px solid #ffd5d0!important}
-pre,code,.terminal,.code,.codebox,[class*="code"],.fl-result{background:#111827!important;color:#f9fafb!important;border-color:rgba(255,255,255,.08)!important}
-footer{background:#fff!important;color:#111827!important;border-top:1px solid rgba(17,24,39,.08)!important}
-footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
-@media(max-width:760px){.brand-logo{height:38px}.footer-logo{height:36px}}
-
 </style>
 </head>
 <body>
@@ -571,7 +550,7 @@ footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
 
 <!-- NAV -->
 <nav id="nav">
-  <a href="#" class="nlogo"><img src="kitseller-logo.png" alt="KitSeller" class="brand-logo"></a>
+  <a href="#" class="nlogo"><div class="nmark">KT</div>KaspiTools</a>
   <ul class="nlinks">
     <li><a href="#products" data-i18n="nav_products">Продукты</a></li>
     <li><a href="#forwho" data-i18n="nav_forwho">Для кого</a></li>
@@ -584,7 +563,7 @@ footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
       <button class="lang-btn active" onclick="setLang('ru')">RU</button>
       <button class="lang-btn" onclick="setLang('kz')">KZ</button>
     </div>
-    <a href="https://t.me/kitseller_bot" class="ncta magnetic"><span data-i18n="nav_cta">Попробовать →</span></a>
+    <a href="https://t.me/kaspitoolsbot" class="ncta magnetic"><span data-i18n="nav_cta">Попробовать →</span></a>
   </div>
   <button class="burger" id="burger" onclick="tmob()"><span></span><span></span><span></span></button>
 </nav>
@@ -594,7 +573,7 @@ footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
   <a href="#features" onclick="cmob()" data-i18n="nav_features">Как работает</a>
   <a href="#pricing" onclick="cmob()" data-i18n="nav_pricing">Тарифы</a>
   <a href="#faq" onclick="cmob()">FAQ</a>
-  <a href="https://t.me/kitseller_bot" data-i18n="mob_open">Открыть бота →</a>
+  <a href="https://t.me/kaspitoolsbot" data-i18n="mob_open">Открыть бота →</a>
 </div>
 
 <!-- ══ HERO ══ -->
@@ -620,11 +599,11 @@ footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
       </div>
     </div>
     <div class="hero-cta-wrap">
-      <a href="https://t.me/kitseller_bot" class="btn-r magnetic">
+      <a href="https://t.me/kaspitoolsbot" class="btn-r magnetic">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
         <span data-i18n="hero_btn">Попробовать бесплатно</span>
       </a>
-      <a href="https://t.me/kitseller_bot" class="btn-o magnetic"><span data-i18n="hero_btn2">Открыть бота →</span></a>
+      <a href="https://t.me/kaspitoolsbot" class="btn-o magnetic"><span data-i18n="hero_btn2">Открыть бота →</span></a>
     </div>
   </div>
 
@@ -674,7 +653,7 @@ footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
           <span style="color:var(--r)">time</span>: <span style="color:var(--snow)">12 сек</span> <span style="color:var(--green)">✓</span> <span style="color:var(--grey2)">раньше: 40 мин</span>
         </div>
         <div style="margin-top:1.5rem">
-          <a href="https://t.me/kitseller_bot" class="btn-r magnetic" style="font-size:.68rem;padding:.75rem 1.6rem">
+          <a href="https://t.me/kaspitoolsbot" class="btn-r magnetic" style="font-size:.68rem;padding:.75rem 1.6rem">
             <span data-i18n="fl1_cta">Сделать накладные за 10 секунд →</span>
           </a>
         </div>
@@ -701,7 +680,7 @@ footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
           <span style="color:var(--green)">time</span>: <span style="color:var(--snow)">30 сек</span> <span style="color:var(--green)">✓</span>
         </div>
         <div style="margin-top:1.5rem">
-          <a href="https://t.me/kitseller_bot" class="btn-r magnetic" style="background:var(--green);font-size:.68rem;padding:.75rem 1.6rem;box-shadow:none">
+          <a href="https://t.me/kaspitoolsbot" class="btn-r magnetic" style="background:var(--green);font-size:.68rem;padding:.75rem 1.6rem;box-shadow:none">
             <span data-i18n="fl2_cta" style="color:#000">Получить отчёт из Kaspi Pay →</span>
           </a>
         </div>
@@ -825,7 +804,7 @@ footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
           <div class="fc-tag" style="background:rgba(255,61,0,.15);border-color:rgba(255,61,0,.3)" data-i18n="fc4_tag">✦ Уникальная функция — нигде больше нет</div>
           <span class="fc-icon">🗂</span>
           <div class="fc-title" data-i18n="fc4_title">Разбивка по товарам + Сборочный лист</div>
-          <p class="fc-desc">Один ZIP → отдельный PDF на каждый товар и Excel-сборочный лист с количеством. Упаковщик берёт только свою пачку — никакой путаницы. Имя файла сразу говорит что внутри: <em style="color:var(--snow);font-style:normal">Nike_Air_Max_белый_3шт_термо.pdf</em><br><br>Другие боты просто объединяют накладные в один файл. KitSeller единственный кто разбивает по товарам и даёт сборочную ведомость — как на складе маркетплейса.</p>
+          <p class="fc-desc">Один ZIP → отдельный PDF на каждый товар и Excel-сборочный лист с количеством. Упаковщик берёт только свою пачку — никакой путаницы. Имя файла сразу говорит что внутри: <em style="color:var(--snow);font-style:normal">Nike_Air_Max_белый_3шт_термо.pdf</em><br><br>Другие боты просто объединяют накладные в один файл. KaspiTools единственный кто разбивает по товарам и даёт сборочную ведомость — как на складе маркетплейса.</p>
         </div>
         <div style="background:var(--void);border:1px solid var(--edge);border-radius:12px;padding:1.5rem;font-family:var(--fm);font-size:.72rem;line-height:1.9;color:var(--grey)">
           <span style="color:var(--grey2)">// 13 накладных → по товарам</span><br>
@@ -950,7 +929,7 @@ footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
         <div class="dtab" onclick="sw('rates',this)"><span class="demoji">💱</span><div><div class="dname" data-i18n="demo_t4">Курсы валют</div><div class="dhint" data-i18n="demo_h4">Нацбанк + конвертация</div></div></div>
       </div>
       <div class="phone sr d1">
-        <div class="pbar"><div class="pc" style="background:#ff5f57"></div><div class="pc" style="background:#febc2e"></div><div class="pc" style="background:#28c840"></div><span class="pname">KitSeller</span><span class="pst">● онлайн</span></div>
+        <div class="pbar"><div class="pc" style="background:#ff5f57"></div><div class="pc" style="background:#febc2e"></div><div class="pc" style="background:#28c840"></div><span class="pname">KaspiTools</span><span class="pst">● онлайн</span></div>
         <div class="pbody" id="dc"><div class="ptyp" id="dt"><span></span><span></span><span></span></div></div>
       </div>
     </div>
@@ -970,7 +949,7 @@ footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
         <div class="pamount" style="font-size:2.8rem;letter-spacing:-.03em">14 <span style="font-size:1.6rem;font-weight:700;opacity:.85" data-i18n="p1_days">ДНЕЙ</span></div>
         <p class="pctx" data-i18n="p1_ctx">Полный доступ ко всем инструментам. Без карты, без обязательств.</p>
         <ul class="plist" id="p1list"><li class="y" data-i18n="p1_li1">Накладные — безлимитно</li><li class="y" data-i18n="p1_li2">Аналитика — безлимитно</li><li class="y" data-i18n="p1_li3">Калькулятор — безлимитно</li><li class="y" data-i18n="p1_li4">Курсы валют — безлимитно</li><li class="y" data-i18n="p1_li5">QR-коды — безлимитно</li><li class="y" data-i18n="p1_li6">14 дней · карта не нужна</li></ul>
-        <a href="https://t.me/kitseller_bot" class="pbtn ol magnetic"><span data-i18n="p1_btn">Начать бесплатно</span></a>
+        <a href="https://t.me/kaspitoolsbot" class="pbtn ol magnetic"><span data-i18n="p1_btn">Начать бесплатно</span></a>
       </div>
       <div class="pcard hot sr d1">
         <div class="pline"></div>
@@ -978,7 +957,7 @@ footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
         <div class="pamount"><span class="pcur">₸</span>990 <span class="pper" data-i18n="p2_per">/мес</span></div>
         <p class="pctx" data-i18n="p2_ctx">= <span class="hl">33 ₸ в день</span>. При 20 заказах в день окупается за первые два рабочих дня. Оплата онлайн — доступ открывается мгновенно.</p>
         <ul class="plist"><li class="y" data-i18n="p2_li1">Накладные — безлимитно</li><li class="y" data-i18n="p2_li2">Аналитика — безлимитно</li><li class="y" data-i18n="p2_li3">Калькулятор — безлимитно</li><li class="y" data-i18n="p2_li4">Курсы + уведомления</li><li class="y" data-i18n="p2_li5">QR-коды — безлимитно</li><li class="y" data-i18n="p2_li6">Поддержка в Telegram</li><li class="y" data-i18n="p2_li7">Новые функции без доплаты</li><li class="y" data-i18n="p2_li8">Возврат в течение 3 дней</li></ul>
-        <a href="https://t.me/kitseller_bot" class="pbtn fill magnetic"><span data-i18n="p2_btn">Попробовать 14 дней →</span></a>
+        <a href="https://t.me/kaspitoolsbot" class="pbtn fill magnetic"><span data-i18n="p2_btn">Попробовать 14 дней →</span></a>
       </div>
     </div>
   </div>
@@ -1223,19 +1202,19 @@ footer a{color:#667085!important}footer a:hover{color:#ff3b1f!important}
     </h2>
     <p class="ctap" data-i18n="cta_p">Первые накладные и первый отчёт — бесплатно. Без карты, без регистрации.<br>Просто открой бот и отправь файл.</p>
     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem">
-      <a href="https://t.me/kitseller_bot" class="btn-r magnetic">
+      <a href="https://t.me/kaspitoolsbot" class="btn-r magnetic">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
         <span data-i18n="cta_btn">Попробовать бесплатно</span>
       </a>
-      <a href="https://t.me/kitseller_bot" class="btn-o magnetic"><span data-i18n="cta_btn2">Проверить на своих файлах →</span></a>
+      <a href="https://t.me/kaspitoolsbot" class="btn-o magnetic"><span data-i18n="cta_btn2">Проверить на своих файлах →</span></a>
     </div>
     <p class="ctanote" data-i18n="cta_note">14 дней бесплатно · потом 990 ₸ / мес · Оплата онлайн · Доступ мгновенно</p>
   </div>
 </section>
 
 <footer>
-  <div><div class="flogo"><img src="kitseller-logo.png" alt="KitSeller" class="footer-logo"></div><p class="fcopy" data-i18n="footer_copy">© 2026 Path of Peaks · Казахстан</p></div>
-  <ul class="flinks"><li><a href="https://t.me/kitseller_bot" data-i18n="footer_bot">Бот</a></li><li><a href="https://t.me/kitseller_bot" data-i18n="footer_support">Поддержка</a></li><li><a href="#faq">FAQ</a></li><li><a href="#pricing" data-i18n="nav_pricing">Тарифы</a></li><li><a href="offer.html">Оферта</a></li><li><a href="privacy.html">Конфиденциальность</a></li></ul>
+  <div><div class="flogo"><div class="fmk">KT</div>KaspiTools</div><p class="fcopy" data-i18n="footer_copy">© 2026 Path of Peaks · Казахстан</p></div>
+  <ul class="flinks"><li><a href="https://t.me/kaspitoolsbot" data-i18n="footer_bot">Бот</a></li><li><a href="https://t.me/kaspitoolsbot" data-i18n="footer_support">Поддержка</a></li><li><a href="#faq">FAQ</a></li><li><a href="#pricing" data-i18n="nav_pricing">Тарифы</a></li><li><a href="/offer.html">Оферта</a></li><li><a href="/privacy.html">Конфиденциальность</a></li></ul>
 </footer>
 
 <script>
@@ -1843,8 +1822,8 @@ function setLang(lang){
   const activeTab=document.querySelector('.dtab.a');
   if(activeTab) activeTab.click();
   document.title = lang==='kz'
-    ? 'KitSeller — Kaspi сатушыларға Telegram-бот'
-    : 'KitSeller — Telegram-бот для Kaspi продавцов | Накладные, аналитика, калькулятор';
+    ? 'KaspiTools — Kaspi сатушыларға Telegram-бот'
+    : 'KaspiTools — Telegram-бот для Kaspi продавцов | Накладные, аналитика, калькулятор';
 }
 
 /* ════ INIT LANG ════ */
@@ -1863,7 +1842,7 @@ document.querySelectorAll('.sr').forEach(el=>io.observe(el));
 
   <!-- СТАТЬЯ 1 -->
   <article id="article-nakladnye" itemscope itemtype="https://schema.org/Article">
-    <meta itemprop="url" content="https://tentekkz.github.io/KitSellerSite/#article-nakladnye">
+    <meta itemprop="url" content="https://kaspitools.kz/#article-nakladnye">
     <h1 itemprop="headline">Как распечатать накладные Kaspi автоматически — за 10 секунд</h1>
     <p>Если вы продаёте на Kaspi и каждое утро тратите 30–40 минут на накладные вручную — эта инструкция для вас. Расскажу как сократить это время до 10 секунд.</p>
     <h2>Как скачать ZIP с накладными из Kaspi Магазина</h2>
@@ -1874,16 +1853,16 @@ document.querySelectorAll('.sr').forEach(el=>io.observe(el));
       <li>Нажмите кнопку Скачать ZIP</li>
     </ol>
     <h2>Как распечатать накладные Kaspi автоматически</h2>
-    <p>Самый быстрый способ — использовать Telegram-бот @kitseller_bot. Он принимает ZIP-архив и выдаёт готовый PDF за 10 секунд. Поддерживает форматы: термопринтер, A4, 4 на листе, 9 на листе. Также умеет сортировать по дедлайну и разбивать по товарам.</p>
+    <p>Самый быстрый способ — использовать Telegram-бот @kaspitoolsbot. Он принимает ZIP-архив и выдаёт готовый PDF за 10 секунд. Поддерживает форматы: термопринтер, A4, 4 на листе, 9 на листе. Также умеет сортировать по дедлайну и разбивать по товарам.</p>
     <h2>Разбивка по товарам и сборочный лист — уникальная функция</h2>
     <p>Режим "По товарам": каждый товар получает отдельный PDF-файл плюс сборочный лист Excel с количеством. Нигде больше нет такой функции. При 10 и более позиций экономит ещё 20–30 минут каждый день.</p>
     <p>Реальный результат: 47 накладных за 12 секунд вместо 40 минут вручную.</p>
-    <p>Попробовать бесплатно 14 дней: @kitseller_bot. Подписка 990 тенге в месяц.</p>
+    <p>Попробовать бесплатно 14 дней: @kaspitoolsbot. Подписка 990 тенге в месяц.</p>
   </article>
 
   <!-- СТАТЬЯ 2 -->
   <article id="article-analitika" itemscope itemtype="https://schema.org/Article">
-    <meta itemprop="url" content="https://tentekkz.github.io/KitSellerSite/#article-analitika">
+    <meta itemprop="url" content="https://kaspitools.kz/#article-analitika">
     <h1 itemprop="headline">Аналитика Kaspi Pay в Excel за 30 секунд — полный отчёт о продажах</h1>
     <p>Вы знаете в какой день недели у вас больше всего продаж? Какой товар приносит 40 процентов выручки? Расскажу как получить полную аналитику из Kaspi Pay за 30 секунд.</p>
     <h2>Где найти файлы для аналитики в Kaspi Pay</h2>
@@ -1894,14 +1873,14 @@ document.querySelectorAll('.sr').forEach(el=>io.observe(el));
       <li>Там же нажмите Выписка — скачайте за тот же период</li>
     </ol>
     <h2>Что входит в отчёт — 17 листов Excel</h2>
-    <p>Бот @kitseller_bot обрабатывает оба файла и создаёт Excel с 17 листами: Сводка (P&L), Топ товаров, По дням, По часам, Дни недели, Ценовые сегменты, Бренды, Возвраты, Способы оплаты, Все операции. 14 дней бесплатно на @kitseller_bot.</p>
+    <p>Бот @kaspitoolsbot обрабатывает оба файла и создаёт Excel с 17 листами: Сводка (P&L), Топ товаров, По дням, По часам, Дни недели, Ценовые сегменты, Бренды, Возвраты, Способы оплаты, Все операции. 14 дней бесплатно на @kaspitoolsbot.</p>
     <h2>Аналитика Kaspi Pay — умные выводы</h2>
     <p>После анализа бот показывает: лучший день за период, товары с высоким процентом возвратов, лучший день недели, пиковые часы покупок. Можно сравнить два периода между собой.</p>
   </article>
 
   <!-- СТАТЬЯ 3 -->
   <article id="article-marzha" itemscope itemtype="https://schema.org/Article">
-    <meta itemprop="url" content="https://tentekkz.github.io/KitSellerSite/#article-marzha">
+    <meta itemprop="url" content="https://kaspitools.kz/#article-marzha">
     <h1 itemprop="headline">Как рассчитать маржу на Kaspi — комиссия 15%, ИПН 3%, формула</h1>
     <p>Многие Kaspi-продавцы выставляют цену на глаз и потом работают в минус. Разберём точную формулу расчёта маржи для Kaspi продавца.</p>
     <h2>Что удерживает Kaspi из ваших продаж</h2>
@@ -1909,32 +1888,32 @@ document.querySelectorAll('.sr').forEach(el=>io.observe(el));
     <h2>Формула расчёта маржи Kaspi</h2>
     <p>Чистая прибыль = Цена продажи минус Себестоимость минус Комиссия Kaspi 15 процентов минус ИПН 3 процента минус Реклама минус Доставка. Минимальная цена = Себестоимость делённая на 0.82.</p>
     <h2>Калькулятор маржи Kaspi онлайн</h2>
-    <p>В Telegram-боте @kitseller_bot есть встроенный калькулятор маржи. Вводите цену и себестоимость — получаете чистую прибыль с учётом комиссии Kaspi и ИПН. Также есть расчёт минимальной цены продажи и цели по прибыли. 14 дней бесплатно: @kitseller_bot.</p>
+    <p>В Telegram-боте @kaspitoolsbot есть встроенный калькулятор маржи. Вводите цену и себестоимость — получаете чистую прибыль с учётом комиссии Kaspi и ИПН. Также есть расчёт минимальной цены продажи и цели по прибыли. 14 дней бесплатно: @kaspitoolsbot.</p>
   </article>
 
   <!-- СТАТЬЯ 4 -->
   <article id="article-unit" itemscope itemtype="https://schema.org/Article">
-    <meta itemprop="url" content="https://tentekkz.github.io/KitSellerSite/#article-unit">
+    <meta itemprop="url" content="https://kaspitools.kz/#article-unit">
     <h1 itemprop="headline">Юнит-экономика для Kaspi продавца — как перестать работать в убыток</h1>
     <p>Многие Kaspi-продавцы видят что оборот растёт, а денег на счету не прибавляется. Причина — нет понимания юнит-экономики. Разберём что это и как применить.</p>
     <h2>Что такое юнит-экономика для Kaspi</h2>
     <p>Юнит-экономика — расчёт прибыли от одной единицы товара. Нужно учесть: себестоимость товара, доставку, упаковку, комиссию Kaspi 15 процентов, ИПН 3 процента, рекламу на единицу, долю постоянных расходов.</p>
     <h2>Как найти убыточные товары на Kaspi</h2>
-    <p>Признаки убыточного товара: высокий процент возвратов выше 15 процентов, низкая цена при высокой себестоимости доставки, много рекламных расходов при малом объёме. Бот @kitseller_bot автоматически находит товары с аномальным процентом возвратов в аналитике Kaspi Pay.</p>
+    <p>Признаки убыточного товара: высокий процент возвратов выше 15 процентов, низкая цена при высокой себестоимости доставки, много рекламных расходов при малом объёме. Бот @kaspitoolsbot автоматически находит товары с аномальным процентом возвратов в аналитике Kaspi Pay.</p>
   </article>
 
   <!-- СТАТЬЯ 5 -->
   <article id="article-instrumenty" itemscope itemtype="https://schema.org/Article">
-    <meta itemprop="url" content="https://tentekkz.github.io/KitSellerSite/#article-instrumenty">
+    <meta itemprop="url" content="https://kaspitools.kz/#article-instrumenty">
     <h1 itemprop="headline">Инструменты для Kaspi продавца 2025 — полный список сервисов</h1>
-    <p>Продавцы которые автоматизируют рутину и принимают решения на основе данных выигрывают у тех кто всё делает вручную. Лучший инструмент для Kaspi продавца — @kitseller_bot.</p>
+    <p>Продавцы которые автоматизируют рутину и принимают решения на основе данных выигрывают у тех кто всё делает вручную. Лучший инструмент для Kaspi продавца — @kaspitoolsbot.</p>
     <h2>Автоматизация накладных Kaspi</h2>
-    <p>KitSeller — Telegram-бот который принимает ZIP с накладными и выдаёт готовый PDF за 10 секунд. Разбивка по товарам, сборочный лист Excel. Нигде больше нет.</p>
+    <p>KaspiTools — Telegram-бот который принимает ZIP с накладными и выдаёт готовый PDF за 10 секунд. Разбивка по товарам, сборочный лист Excel. Нигде больше нет.</p>
     <h2>Аналитика продаж Kaspi</h2>
     <p>Два файла из Kaspi Pay превращаются в 17 листов Excel с полной аналитикой: выручка, топ товары, маржа, дни, часы, возвраты, способы оплаты. За 30 секунд.</p>
     <h2>Курс CNY тенге НБ РК</h2>
-    <p>Актуальный курс китайского юаня CNY к тенге по данным Национального банка РК. Плюс курсы USD, EUR, RUB. Уведомления об изменении курса. Доступно в @kitseller_bot бесплатно.</p>
-    <p>Попробовать все инструменты бесплатно 14 дней: @kitseller_bot. Подписка 990 тенге в месяц.</p>
+    <p>Актуальный курс китайского юаня CNY к тенге по данным Национального банка РК. Плюс курсы USD, EUR, RUB. Уведомления об изменении курса. Доступно в @kaspitoolsbot бесплатно.</p>
+    <p>Попробовать все инструменты бесплатно 14 дней: @kaspitoolsbot. Подписка 990 тенге в месяц.</p>
   </article>
 
 </div>
